@@ -62,8 +62,8 @@ $result = $conn->query($sql);
             <a href="orders.php" class="nav-link">
                 <i class="fas fa-box"></i> Orders
             </a>
-            <a href="users.php" class="nav-link">
-                <i class="fas fa-users"></i> Users
+            <a href="../reset_data.php" class="nav-link text-warning" target="_blank">
+                <i class="fas fa-exclamation-triangle"></i> Reset Data
             </a>
             <hr class="text-white opacity-25">
             <a href="../index.php" class="nav-link">
@@ -124,18 +124,7 @@ $result = $conn->query($sql);
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="stats-card">
-                        <div class="stats-icon text-warning"
-                            style="color: #ffc107; background: rgba(255, 193, 7, 0.1);">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="stats-info">
-                            <h3><?php echo $stats['users']; ?></h3>
-                            <p>Active Users</p>
-                        </div>
-                    </div>
-                </div>
+
                 <div class="col-md-3">
                     <div class="stats-card">
                         <div class="stats-icon text-info" style="color: #0dcaf0; background: rgba(13, 202, 240, 0.1);">

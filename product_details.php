@@ -21,7 +21,7 @@ if ($result->num_rows > 0) {
 }
 
 // Fetch Reviews
-$review_sql = "SELECT r.*, u.full_name FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.product_id = ? ORDER BY r.created_at DESC";
+$review_sql = "SELECT r.*, u.full_name, u.profile_image FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.product_id = ? ORDER BY r.created_at DESC";
 $review_stmt = $conn->prepare($review_sql);
 $review_stmt->bind_param("i", $product_id);
 $review_stmt->execute();
@@ -35,7 +35,8 @@ $reviews_result = $review_stmt->get_result();
             <li class="breadcrumb-item"><a href="index.php" class="text-decoration-none text-muted">Home</a></li>
             <li class="breadcrumb-item"><a href="products.php" class="text-decoration-none text-muted">Products</a></li>
             <li class="breadcrumb-item active text-dark" aria-current="page">
-                <?php echo htmlspecialchars($product['name']); ?></li>
+                <?php echo htmlspecialchars($product['name']); ?>
+            </li>
         </ol>
     </nav>
 
@@ -197,10 +198,16 @@ $reviews_result = $review_stmt->get_result();
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div class="d-flex align-items-center gap-3">
-                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold"
-                                            style="width: 45px; height: 45px; font-size: 1.2rem;">
-                                            <?php echo strtoupper(substr($review['full_name'], 0, 1)); ?>
-                                        </div>
+                                        <?php if (!empty($review['profile_image'])): ?>
+                                            <img src="data:image/png;base64,<?php echo base64_encode($review['profile_image']); ?>"
+                                                alt="<?php echo htmlspecialchars($review['full_name']); ?>" class="rounded-circle"
+                                                style="width: 45px; height: 45px; object-fit: cover;">
+                                        <?php else: ?>
+                                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                                                style="width: 45px; height: 45px; font-size: 1.2rem;">
+                                                <?php echo strtoupper(substr($review['full_name'], 0, 1)); ?>
+                                            </div>
+                                        <?php endif; ?>
                                         <div>
                                             <h6 class="fw-bold mb-0"><?php echo htmlspecialchars($review['full_name']); ?></h6>
                                             <small

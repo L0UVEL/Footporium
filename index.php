@@ -11,9 +11,9 @@ include 'includes/header.php';
         <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
         <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
     </div>
-    <div class="carousel-inner rounded-4 shadow-lg">
+    <div class="carousel-inner rounded-4 rounded-top-0 shadow-lg">
         <div class="carousel-item active">
-            <div class="d-flex align-items-center justify-content-center glass-carousel hero-height">
+            <div class="d-flex align-items-center justify-content-center glass-carousel hero-height rounded-top-0">
                 <div class="text-center">
                     <h1 class="display-3 fw-bold mb-3">We Bring "FOOT" for Everybody</h1>
                     <p class="lead mb-4">Discover the most unique and premium collection of feet.</p>
@@ -25,7 +25,7 @@ include 'includes/header.php';
             </div>
         </div>
         <div class="carousel-item">
-            <div class="d-flex align-items-center justify-content-center glass-carousel hero-height">
+            <div class="d-flex align-items-center justify-content-center glass-carousel hero-height rounded-top-0">
                 <div class="text-center">
                     <h1 class="display-3 fw-bold mb-3">Steps Ahead of the Rest</h1>
                     <p class="lead mb-4">Upgrade your walk with our Prosthetic selection.</p>
@@ -37,7 +37,7 @@ include 'includes/header.php';
             </div>
         </div>
         <div class="carousel-item">
-            <div class="d-flex align-items-center justify-content-center glass-carousel hero-height">
+            <div class="d-flex align-items-center justify-content-center glass-carousel hero-height rounded-top-0">
                 <div class="text-center">
                     <h1 class="display-3 fw-bold mb-3">Legendary Finds</h1>
                     <p class="lead mb-4">Rare collectibles like the Bigfoot Foot.</p>

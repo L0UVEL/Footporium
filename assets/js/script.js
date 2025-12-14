@@ -1,5 +1,151 @@
-document.addEventListener('DOMContentLoaded', function () {
-    console.log("Footporium Loaded!");
+// Persistent Logic (Runs once)
+function initPersistent() {
+    console.log("Footporium Loaded - Persistent Init");
+
+    // Navbar Scroll Effect (Global Listener)
+    window.addEventListener('scroll', function () {
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        }
+    });
+
+    // Theme Toggle Logic
+    const body = document.documentElement;
+
+    function updateIcons(theme) {
+        document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+            icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        });
+    }
+
+    // Initialize Theme
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme === 'dark') {
+        body.setAttribute('data-theme', 'dark');
+        updateIcons('dark');
+    }
+
+    // Add listeners to theme buttons (Nav is persistent)
+    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (body.hasAttribute('data-theme')) {
+                body.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                updateIcons('light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                updateIcons('dark');
+            }
+        });
+    });
+
+    // Cart Page Interactions (Delegation - Body is persistent)
+    document.body.addEventListener('click', function (e) {
+        if (e.target.closest('.cart-update-btn') || e.target.closest('.cart-remove-btn')) {
+            const btn = e.target.closest('.btn');
+            const cartItem = btn.closest('.cart-item');
+            const productId = cartItem.dataset.id;
+            let action = '';
+
+            if (btn.classList.contains('cart-remove-btn')) {
+                action = 'remove';
+                if (!confirm('Are you sure?')) return;
+            } else {
+                action = btn.dataset.action;
+            }
+
+            const formData = new FormData();
+            formData.append('action', action);
+            formData.append('product_id', productId);
+
+            fetch('actions/update_cart_action.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Update Badges
+                        const badges = document.querySelectorAll('.badge.bg-danger');
+                        badges.forEach(b => {
+                            b.innerText = data.cart_count;
+                            b.style.display = data.cart_count > 0 ? 'block' : 'none';
+                        });
+
+                        // Update Total
+                        const totalEl = document.getElementById('cart-total');
+                        if (totalEl) totalEl.innerText = data.cart_total;
+
+                        // Update UI Item
+                        if (action === 'remove') {
+                            cartItem.remove();
+                            if (data.cart_empty) location.reload();
+                        } else {
+                            const input = cartItem.querySelector('.quantity-input');
+                            let currentQty = parseInt(input.value);
+                            if (action === 'increase') input.value = currentQty + 1;
+                            if (action === 'decrease') {
+                                if (currentQty > 1) input.value = currentQty - 1;
+                                else cartItem.remove();
+                            }
+                        }
+                    }
+                });
+        }
+    });
+
+    // Initialize Barba
+    if (typeof barba !== 'undefined') {
+        barba.init({
+            debug: true,
+            transitions: [{
+                name: 'opacity-transition',
+                leave(data) {
+                    return new Promise(resolve => {
+                        data.current.container.style.opacity = 0;
+                        data.current.container.style.transition = 'opacity 0.4s';
+                        setTimeout(() => resolve(), 400);
+                    });
+                },
+                enter(data) {
+                    data.next.container.style.opacity = 0;
+                    // Force reflow
+                    data.next.container.offsetHeight;
+                    data.next.container.style.transition = 'opacity 0.4s';
+                    data.next.container.style.opacity = 1;
+                }
+            }]
+        });
+
+        barba.hooks.after(() => {
+            initDynamic();
+            // Scroll to top
+            window.scrollTo(0, 0);
+
+            // Update active nav link
+            const currentPath = window.location.pathname.split('/').pop();
+            document.querySelectorAll('.nav-link').forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+    }
+}
+
+// Dynamic Logic (Runs on every page view)
+function initDynamic() {
+    console.log("Footporium Page Init - Dynamic");
 
     // Scroll Animation
     const observerOptions = {
@@ -16,52 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    // Navbar Scroll Effect
-    window.addEventListener('scroll', function () {
-        if (window.scrollY > 50) {
-            document.querySelector('.navbar').classList.add('scrolled');
-        } else {
-            document.querySelector('.navbar').classList.remove('scrolled');
-        }
-    });
-
-    // Theme Toggle
-    // This event listener is redundant if the main one is already DOMContentLoaded.
-    // It should be integrated into the main DOMContentLoaded or called directly.
-    // For now, I'll place it as a separate block as per instruction, but note the redundancy.
-    // Theme Toggle Logic
-    const body = document.documentElement;
-
-    function updateIcons(theme) {
-        document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
-            icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-        });
-    }
-
-    // Initialize
-    const currentTheme = localStorage.getItem('theme');
-    if (currentTheme === 'dark') {
-        body.setAttribute('data-theme', 'dark');
-        updateIcons('dark');
-    }
-
-    // Add listeners to all buttons
-    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (body.hasAttribute('data-theme')) {
-                body.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'light');
-                updateIcons('light');
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-                updateIcons('dark');
-            }
-        });
-    });
-
-    // Add click event ONLY to "Add to Cart" buttons
+    // Add click event to "Add to Cart" buttons (These are re-rendered)
     const addButtons = document.querySelectorAll('.add-to-cart-btn');
 
     addButtons.forEach(button => {
@@ -92,14 +193,15 @@ document.addEventListener('DOMContentLoaded', function () {
                         this.classList.remove('btn-primary-custom');
 
                         // 3. Update Badge
-                        const badge = document.getElementById('cart-badge');
-                        if (badge) {
-                            badge.innerText = data.cart_count;
-                            badge.style.display = 'block'; // Ensure it's visible
-                        }
+                        // Update all badges (mobile/desktop)
+                        const badges = document.querySelectorAll('.badge.bg-danger');
+                        badges.forEach(b => {
+                            b.innerText = data.cart_count;
+                            b.style.display = 'block';
+                        });
 
                         // 4. Fly to Cart Animation
-                        const cartIcon = document.querySelector('.fa-shopping-cart');
+                        const cartIcon = document.querySelector('.fa-shopping-cart'); // Target first one
                         if (cartIcon) {
                             const productCard = this.closest('.product-card') || this.closest('.col-md-6'); // Support detail page too
                             const productImg = productCard ? productCard.querySelector('img') : null;
@@ -167,59 +269,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
     });
+}
 
-    // Cart Page Interactions (Delegation)
-    document.body.addEventListener('click', function (e) {
-        if (e.target.closest('.cart-update-btn') || e.target.closest('.cart-remove-btn')) {
-            const btn = e.target.closest('.btn');
-            const cartItem = btn.closest('.cart-item');
-            const productId = cartItem.dataset.id;
-            let action = '';
-
-            if (btn.classList.contains('cart-remove-btn')) {
-                action = 'remove';
-                if (!confirm('Are you sure?')) return;
-            } else {
-                action = btn.dataset.action;
-            }
-
-            const formData = new FormData();
-            formData.append('action', action);
-            formData.append('product_id', productId);
-
-            fetch('actions/update_cart_action.php', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        // Update Badge
-                        const badge = document.getElementById('cart-badge');
-                        if (badge) {
-                            badge.innerText = data.cart_count;
-                            badge.style.display = data.cart_count > 0 ? 'block' : 'none';
-                        }
-
-                        // Update Total
-                        const totalEl = document.getElementById('cart-total');
-                        if (totalEl) totalEl.innerText = data.cart_total;
-
-                        // Update UI Item
-                        if (action === 'remove') {
-                            cartItem.remove();
-                            if (data.cart_empty) location.reload(); // Refresh to show empty message
-                        } else {
-                            const input = cartItem.querySelector('.quantity-input');
-                            let currentQty = parseInt(input.value);
-                            if (action === 'increase') input.value = currentQty + 1;
-                            if (action === 'decrease') {
-                                if (currentQty > 1) input.value = currentQty - 1;
-                                else cartItem.remove(); // Remove if went to 0
-                            }
-                        }
-                    }
-                });
-        }
-    });
+// Master Init
+document.addEventListener('DOMContentLoaded', function () {
+    initPersistent();
+    initDynamic();
 });
+
+
