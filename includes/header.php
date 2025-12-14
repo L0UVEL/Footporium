@@ -17,15 +17,16 @@ $user_header_img = '';
 if (isset($_SESSION['user_id']) && isset($conn)) {
     $hid = $_SESSION['user_id'];
     $hsql = "SELECT profile_image FROM users WHERE id = ?";
-    if ($stmt = $conn->prepare($hsql)) {
-        $stmt->bind_param("i", $hid);
-        $stmt->execute();
-        $stmt->bind_result($himg_data);
-        $stmt->fetch();
-        $stmt->close();
-        if ($himg_data) {
-            $user_header_img = '<img src="data:image/png;base64,' . base64_encode($himg_data) . '" class="rounded-circle" width="30" height="30" style="object-fit:cover; margin-right:5px;">';
+    if ($header_stmt = $conn->prepare($hsql)) {
+        $header_stmt->bind_param("i", $hid);
+        $header_stmt->execute();
+        $h_result = $header_stmt->get_result();
+        if ($h_row = $h_result->fetch_assoc()) {
+            if ($h_row['profile_image']) {
+                $user_header_img = '<img src="data:image/png;base64,' . base64_encode($h_row['profile_image']) . '" class="rounded-circle" width="30" height="30" style="object-fit:cover; margin-right:5px;">';
+            }
         }
+        $header_stmt->close();
     }
 }
 if (!$user_header_img) {

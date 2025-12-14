@@ -108,6 +108,46 @@ body {
     color: var(--primary-color) !important;
 }
 
+/* Navbar Dropdown Customization */
+.dropdown-menu {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+}
+
+.dropdown-item {
+    color: var(--text-dark);
+    transition: all 0.2s;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: rgba(128, 0, 0, 0.1);
+    /* Subtle primary tint */
+    color: var(--primary-color);
+}
+
+.dropdown-divider {
+    border-top-color: var(--border-color);
+}
+
+/* Explicit Dark Mode Overrides for Dropdowns */
+[data-theme="dark"] .dropdown-menu {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color);
+    color: var(--text-dark);
+}
+
+[data-theme="dark"] .dropdown-item {
+    color: var(--text-dark);
+}
+
+[data-theme="dark"] .dropdown-item:hover,
+[data-theme="dark"] .dropdown-item:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--primary-color);
+}
+
 /* Hero Section (if used) */
 .hero-section {
     background: linear-gradient(135deg, #fff0f0 0%, #ffffff 100%);

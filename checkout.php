@@ -140,7 +140,7 @@ $stmt->close();
 
             <form action="checkout.php" method="post" id="checkoutForm">
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-header bg-white py-3">
+                    <div class="card-header py-3">
                         <h5 class="mb-0 fw-bold"><i class="fas fa-map-marker-alt text-primary me-2"></i> Shipping
                             Address</h5>
                     </div>
@@ -182,7 +182,7 @@ $stmt->close();
                 </div>
 
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-header bg-white py-3">
+                    <div class="card-header py-3">
                         <h5 class="mb-0 fw-bold"><i class="fas fa-credit-card text-primary me-2"></i> Payment Method
                         </h5>
                     </div>
@@ -220,7 +220,7 @@ $stmt->close();
 
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-header bg-light py-3">
+                <div class="card-header py-3">
                     <h5 class="mb-0 fw-bold">Order Summary</h5>
                 </div>
                 <div class="card-body p-4">

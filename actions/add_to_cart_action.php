@@ -36,6 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Redirect back
+    session_write_close();
     header("Location: ../product_details.php?id=" . $product_id . "&added=1");
     exit();
 } else {

@@ -51,7 +51,7 @@ $items = $stmt_items->get_result();
 
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
                 <div
-                    class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    class="card-header py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <div>
                         <span class="text-muted small d-block">Placed on
                             <?php echo date('M d, Y h:i A', strtotime($order['created_at'])); ?></span>
@@ -113,7 +113,7 @@ $items = $stmt_items->get_result();
                                 </tr>
                             <?php endwhile; ?>
                         </tbody>
-                        <tfoot class="bg-light">
+                        <tfoot class="">
                             <tr>
                                 <td colspan="3" class="text-end py-3 fw-bold">Total Amount:</td>
                                 <td class="text-end py-3 pe-4 fs-5 fw-bold text-primary">
