@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
 }
 
 // Fetch Order Details
-$sql = "SELECT o.*, u.full_name, u.email, u.phone, a.address_line, a.city, a.postal_code 
+$sql = "SELECT o.*, u.full_name, u.email, u.phone, a.address_line, a.city, a.postal_code, a.country, a.province, a.barangay  
         FROM orders o
         JOIN users u ON o.user_id = u.id
         JOIN addresses a ON o.address_id = a.id
@@ -133,8 +133,8 @@ $items = $stmt_items->get_result();
                         <p class="mb-1"><strong>Shipping Address:</strong></p>
                         <p class="text-muted mb-0">
                             <?php echo htmlspecialchars($order['address_line']); ?><br>
-                            <?php if ($order['city'])
-                                echo htmlspecialchars($order['city']) . ', '; ?>
+                            <?php echo htmlspecialchars($order['barangay']) . ', ' . htmlspecialchars($order['city']); ?><br>
+                            <?php echo htmlspecialchars($order['province']) . ', ' . htmlspecialchars($order['country']); ?><br>
                             <?php echo htmlspecialchars($order['postal_code']); ?>
                         </p>
                     </div>

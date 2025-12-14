@@ -332,6 +332,22 @@ body {
     color: var(--text-dark);
 }
 
+.form-control:disabled,
+.form-control[readonly] {
+    background-color: var(--bg-input);
+    color: var(--text-dark);
+    /* Keep text readable */
+    opacity: 0.7;
+    /* Dim it slightly to indicate disabled */
+    border-color: var(--border-input);
+}
+
+/* Ensure placeholders are visible */
+.form-control::placeholder {
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
 .profile-img {
     width: 150px;
     height: 150px;

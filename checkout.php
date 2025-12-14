@@ -36,7 +36,10 @@ if ($result_cart) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $address_id = null;
     $address_line = sanitize_input($_POST['address']);
+    $country = sanitize_input($_POST['country']);
+    $province = sanitize_input($_POST['province']);
     $city = sanitize_input($_POST['city']);
+    $barangay = sanitize_input($_POST['barangay']);
     $postal_code = sanitize_input($_POST['postal_code']);
     $payment_method = sanitize_input($_POST['payment_method']);
 
@@ -57,15 +60,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($res->num_rows > 0) {
         $addr_row = $res->fetch_assoc();
         $address_id = $addr_row['id'];
-        $sql_addr = "UPDATE addresses SET address_line = ?, city = ?, postal_code = ? WHERE id = ?";
+        $sql_addr = "UPDATE addresses SET address_line = ?, country=?, province=?, city=?, barangay=?, postal_code = ? WHERE id = ?";
         $stmt_addr = $conn->prepare($sql_addr);
-        $stmt_addr->bind_param("sssi", $address_line, $city, $postal_code, $address_id);
+        $stmt_addr->bind_param("ssssssi", $address_line, $country, $province, $city, $barangay, $postal_code, $address_id);
         $stmt_addr->execute();
         $stmt_addr->close();
     } else {
-        $sql_addr = "INSERT INTO addresses (user_id, address_line, city, postal_code) VALUES (?, ?, ?, ?)";
+        $sql_addr = "INSERT INTO addresses (user_id, address_line, country, province, city, barangay, postal_code) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt_addr = $conn->prepare($sql_addr);
-        $stmt_addr->bind_param("isss", $user_id, $address_line, $city, $postal_code);
+        $stmt_addr->bind_param("issssss", $user_id, $address_line, $country, $province, $city, $barangay, $postal_code);
         $stmt_addr->execute();
         $address_id = $stmt_addr->insert_id;
         $stmt_addr->close();
@@ -142,23 +145,38 @@ $stmt->close();
                             Address</h5>
                     </div>
                     <div class="card-body p-4">
-                        <div class="mb-3">
-                            <label class="form-label">Address Line</label>
-                            <input type="text" name="address" class="form-control" required
-                                value="<?php echo htmlspecialchars($user_addr['address_line'] ?? ''); ?>"
-                                placeholder="Street, Barangay, etc.">
-                        </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">City</label>
+                                <label class="form-label">Country</label>
+                                <input type="text" name="country" class="form-control" required
+                                    value="<?php echo htmlspecialchars($user_addr['country'] ?? 'Philippines'); ?>">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Province</label>
+                                <input type="text" name="province" class="form-control" required
+                                    value="<?php echo htmlspecialchars($user_addr['province'] ?? ''); ?>">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">City / Municipality</label>
                                 <input type="text" name="city" class="form-control" required
                                     value="<?php echo htmlspecialchars($user_addr['city'] ?? ''); ?>">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Barangay</label>
+                                <input type="text" name="barangay" class="form-control" required
+                                    value="<?php echo htmlspecialchars($user_addr['barangay'] ?? ''); ?>">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Postal Code</label>
                                 <input type="text" name="postal_code" class="form-control" required
                                     value="<?php echo htmlspecialchars($user_addr['postal_code'] ?? ''); ?>">
                             </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Address Line (Street, Bldg, etc.)</label>
+                            <input type="text" name="address" class="form-control" required
+                                value="<?php echo htmlspecialchars($user_addr['address_line'] ?? ''); ?>"
+                                placeholder="Street, Building, House No.">
                         </div>
                     </div>
                 </div>
