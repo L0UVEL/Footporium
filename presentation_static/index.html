@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footporium | Premium Footwear</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-shoe-prints me-2"></i>Footporium
+            </a>
+
+            <div class="d-lg-none d-flex align-items-center gap-3 me-2">
+                <a href="profile.html" class="nav-link text-body">
+                    <i class="fas fa-user fs-5"></i>
+                </a>
+                <a href="cart.html" class="nav-link position-relative text-body">
+                    <i class="fas fa-shopping-cart fs-5"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        style="font-size: 0.6rem; display: none;">0</span>
+                </a>
+            </div>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                style="border: none;">
+                <i class="fas fa-bars" style="color: var(--text-dark); font-size: 1.5rem;"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+
+                    <li class="nav-item d-none d-lg-block"><a class="nav-link" href="login.html">Login</a></li>
+                    <li class="nav-item d-none d-lg-block"><a class="nav-link" href="register.html">Register</a></li>
+
+                    <!-- Desktop Cart -->
+                    <li class="nav-item d-none d-lg-block">
+                        <a class="nav-link btn btn-light rounded-pill px-3 ms-2 position-relative" href="cart.html">
+                            <i class="fas fa-shopping-cart text-primary"></i> Cart
+                            <span id="cart-badge"
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="display: none;">
+                                0
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main>
+
+        <!-- Hero Section -->
+        <!-- Hero Carousel: Main slider sa taas ng homepage -->
+        <div id="heroCarousel" class="carousel slide mb-5" data-bs-ride="carousel" data-bs-interval="5000">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+            </div>
+            <!-- 'rounded-top-0' removes the top curve para flat tignan yung edges -->
+            <div class="carousel-inner rounded-4 rounded-top-0 shadow-lg">
+                <div class="carousel-item active">
+                    <div
+                        class="d-flex align-items-center justify-content-center glass-carousel hero-height rounded-top-0">
+                        <div class="text-center">
+                            <h1 class="display-3 fw-bold mb-3">We Bring "FOOT" for Everybody</h1>
+                            <p class="lead mb-4">Discover the most unique and premium collection of feet.</p>
+                            <img src="assets/img/human.png" alt="Human Foot" style="height: 200px; object-fit: contain;"
+                                class="mb-4 drop-shadow">
+                            <br>
+                            <a href="#" class="btn btn-primary-custom btn-lg px-5">Shop Collection</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <div
+                        class="d-flex align-items-center justify-content-center glass-carousel hero-height rounded-top-0">
+                        <div class="text-center">
+                            <h1 class="display-3 fw-bold mb-3">Steps Ahead of the Rest</h1>
+                            <p class="lead mb-4">Upgrade your walk with our Prosthetic selection.</p>
+                            <img src="assets/img/prosthetic.png" alt="Prosthetic Foot"
+                                style="height: 200px; object-fit: contain;" class="mb-4 drop-shadow">
+                            <br>
+                            <a href="#" class="btn btn-primary-custom btn-lg px-5">View Prosthetics</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <div
+                        class="d-flex align-items-center justify-content-center glass-carousel hero-height rounded-top-0">
+                        <div class="text-center">
+                            <h1 class="display-3 fw-bold mb-3">Legendary Finds</h1>
+                            <p class="lead mb-4">Rare collectibles like the Bigfoot Foot.</p>
+                            <img src="assets/img/bigfoot.png" alt="Bigfoot" style="height: 200px; object-fit: contain;"
+                                class="mb-4 drop-shadow">
+                            <br>
+                            <a href="#" class="btn btn-primary-custom btn-lg px-5">Shop Exclusives</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon bg-dark rounded-circle" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+        <!-- Best Sellers -->
+        <div class="container mb-5 reveal">
+            <div class="text-center mb-5">
+                <h2 class="section-title">Best Sellers</h2>
+                <p class="text-muted">Our most popular picks this week</p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Static Product 1 -->
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="product-card">
+                        <div class="product-img-wrapper">
+                            <a href="#">
+                                <img src="assets/img/human.png" alt="Human Foot">
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="#" class="text-decoration-none text-dark">
+                                    Human Foot
+                                </a>
+                            </h5>
+                            <span class="price">₱1,500.00</span>
+                            <!-- Form for add to cart functionality -->
+                            <div class="d-grid mt-2">
+                                <button type="button" class="btn btn-primary-custom add-to-cart-btn">Add to
+                                    Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Static Product 2 -->
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="product-card">
+                        <div class="product-img-wrapper">
+                            <a href="#">
+                                <img src="assets/img/prosthetic.png" alt="Prosthetic Foot">
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="#" class="text-decoration-none text-dark">
+                                    Prosthetic Foot
+                                </a>
+                            </h5>
+                            <span class="price">₱5,000.00</span>
+                            <!-- Form for add to cart functionality -->
+                            <div class="d-grid mt-2">
+                                <button type="button" class="btn btn-primary-custom add-to-cart-btn">Add to
+                                    Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Static Product 3 -->
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="product-card">
+                        <div class="product-img-wrapper">
+                            <a href="#">
+                                <img src="assets/img/cat.png" alt="Cat Paws">
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="#" class="text-decoration-none text-dark">
+                                    Cat Paws
+                                </a>
+                            </h5>
+                            <span class="price">₱800.00</span>
+                            <!-- Form for add to cart functionality -->
+                            <div class="d-grid mt-2">
+                                <button type="button" class="btn btn-primary-custom add-to-cart-btn">Add to
+                                    Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Static Product 4 -->
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="product-card">
+                        <div class="product-img-wrapper">
+                            <a href="#">
+                                <img src="assets/img/bigfoot.png" alt="Bigfoot">
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="#" class="text-decoration-none text-dark">
+                                    Bigfoot
+                                </a>
+                            </h5>
+                            <span class="price">₱1,000,000.00</span>
+                            <!-- Form for add to cart functionality -->
+                            <div class="d-grid mt-2">
+                                <button type="button" class="btn btn-primary-custom add-to-cart-btn">Add to
+                                    Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="mb-4 social-links">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+        <p class="text-muted mb-0">&copy; 2025 Footporium. All rights reserved.</p>
+        </div>
+    </footer>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Main Script -->
+    <script src="assets/js/script.js"></script>
+</body>
+
+</html>

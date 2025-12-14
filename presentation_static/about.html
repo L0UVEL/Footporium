@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | Footporium</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-shoe-prints me-2"></i>Footporium
+            </a>
+
+            <div class="d-lg-none d-flex align-items-center gap-3 me-2">
+                <a href="profile.html" class="nav-link text-body">
+                    <i class="fas fa-user fs-5"></i>
+                </a>
+                <a href="cart.html" class="nav-link position-relative text-body">
+                    <i class="fas fa-shopping-cart fs-5"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        style="font-size: 0.6rem; display: none;">0</span>
+                </a>
+            </div>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                style="border: none;">
+                <i class="fas fa-bars" style="color: var(--text-dark); font-size: 1.5rem;"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html">Profile</a></li>
+                    <li class="nav-item d-none d-lg-block"><a class="nav-link" href="login.html">Login</a></li>
+                    <li class="nav-item d-none d-lg-block"><a class="nav-link" href="register.html">Register</a></li>
+                    <li class="nav-item d-none d-lg-block">
+                        <a class="nav-link btn btn-light rounded-pill px-3 ms-2 position-relative" href="cart.html">
+                            <i class="fas fa-shopping-cart text-primary"></i> Cart
+                            <span id="cart-badge"
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="display: none;">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- About Header -->
+    <div class="container mt-4">
+        <div class="about-header">
+            <h1 class="display-3 fw-bold mb-3">About Footporium</h1>
+            <p class="lead">The world's leading destination for premium feet.</p>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container mb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-sm p-4 p-md-5">
+                    <div class="card-body">
+                        <h2 class="section-title mb-4">Our Story</h2>
+                        <p class="lead text-muted mb-4" style="line-height: 1.8;">
+                            Welcome to <strong>Footporium</strong>, the premier luxury marketplace for feet. From the
+                            everyday to the exotic, we curate the finest selection of podiatric wonders. Born from a
+                            passion
+                            for anatomical excellence, we bridge the gap between collectors and the finest foot
+                            specimens
+                            available.
+                        </p>
+
+                        <!-- Strategic Alignment (IT Governance) -->
+                        <div class="row my-5">
+                            <div class="col-md-6">
+                                <h3 class="h4 fw-bold text-primary">Our Mission</h3>
+                                <p class="text-muted">To curate an exclusive collection of high-quality foot products,
+                                    offering discerning clients unparalleled access to the world's most unique specimens
+                                    with guaranteed authenticity.</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h3 class="h4 fw-bold text-primary">Our Vision</h3>
+                                <p class="text-muted">To be the undisputed global authority in foot commerce, setting
+                                    the
+                                    standard for quality, preservation, and ethical sourcing in the anatomical market.
+                                </p>
+                            </div>
+                        </div>
+
+                        <p class="lead text-muted mb-4" style="line-height: 1.8;">
+                            <strong class="text-primary">Established in 2024</strong>, Footporium has rapidly ascended
+                            to
+                            the pinnacle of the industry. What began as a humble curiosity has blossomed into a global
+                            movement, redefining how the world appreciates the foundational beauty of biology.
+                        </p>
+                        <p class="lead text-muted mb-0" style="line-height: 1.8;">
+                            Distinguished by our commitment to excellence, every item in our inventory is rigorously
+                            inspected. We hope you find the perfect addition to your collection.
+                        </p>
+
+                        <div class="mt-5 pt-4 text-center" style="border-top: 1px solid var(--border-color)">
+                            <h4 class="mb-3">Connect With Us</h4>
+                            <div class="d-flex justify-content-center gap-3">
+                                <a href="#" class="btn btn-outline-secondary rounded-circle social-btn"><i
+                                        class="fab fa-facebook-f fa-lg"></i></a>
+                                <a href="#" class="btn btn-outline-secondary rounded-circle social-btn"><i
+                                        class="fab fa-twitter fa-lg"></i></a>
+                                <a href="#" class="btn btn-outline-secondary rounded-circle social-btn"><i
+                                        class="fab fa-instagram fa-lg"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container text-center">
+            <div class="mb-4 social-links">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+            <p class="text-muted mb-0">&copy; 2025 Footporium. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/script.js"></script>
+</body>
+
+</html>
