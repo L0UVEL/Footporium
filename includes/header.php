@@ -46,7 +46,7 @@ if (!$user_header_img) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Theme Init -->
     <script>
-        (function() {
+        (function () {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
@@ -55,22 +55,40 @@ if (!$user_header_img) {
     </script>
 </head>
 
-<body>
+<body data-barba="wrapper">
     <!-- Background Music -->
     <audio id="bgMusic" loop>
-        <source src="assets/audio/bg_music.mp3" type="audio/mpeg">
+        <source src="assets/audio/bgm.mp3" type="audio/mpeg">
     </audio>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var audio = document.getElementById("bgMusic");
-            // Attempt autoplay
+            audio.volume = 0.5; // Set volume to 50%
+
+            function startAudio() {
+                audio.play().then(() => {
+                    // Remove listeners once played
+                    document.removeEventListener('click', startAudio);
+                    document.removeEventListener('mousemove', startAudio);
+                    document.removeEventListener('scroll', startAudio);
+                    document.removeEventListener('keydown', startAudio);
+                    document.removeEventListener('touchstart', startAudio);
+                }).catch(error => {
+                    console.log("Autoplay prevented even on interaction.");
+                });
+            }
+
+            // Attempt autoplay immediately
             var promise = audio.play();
             if (promise !== undefined) {
                 promise.catch(error => {
-                    console.log("Autoplay prevented. Music will start on interaction.");
-                    document.body.addEventListener('click', function () {
-                        audio.play();
-                    }, { once: true });
+                    console.log("Autoplay prevented. Waiting for interaction.");
+                    // Add listeners for any interaction
+                    document.addEventListener('click', startAudio);
+                    document.addEventListener('mousemove', startAudio);
+                    document.addEventListener('scroll', startAudio);
+                    document.addEventListener('keydown', startAudio);
+                    document.addEventListener('touchstart', startAudio);
                 });
             }
         });
@@ -89,7 +107,7 @@ if (!$user_header_img) {
                 <a href="#" class="nav-link theme-toggle-btn" title="Toggle Theme">
                     <i class="fas fa-moon fs-5"></i>
                 </a>
-                
+
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="profile.php" class="nav-link text-body" title="My Profile">
                         <?php echo $user_header_img ? $user_header_img : '<i class="fas fa-user-circle fs-5"></i>'; ?>
@@ -103,13 +121,14 @@ if (!$user_header_img) {
                 <a href="cart.php" class="nav-link position-relative text-body">
                     <i class="fas fa-shopping-cart fs-5"></i>
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                          style="font-size: 0.6rem; <?php echo ($cart_count > 0) ? '' : 'display: none;'; ?>">
+                        style="font-size: 0.6rem; <?php echo ($cart_count > 0) ? '' : 'display: none;'; ?>">
                         <?php echo $cart_count; ?>
                     </span>
                 </a>
             </div>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border: none;">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                style="border: none;">
                 <i class="fas fa-bars" style="color: var(--text-dark); font-size: 1.5rem;"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -121,7 +140,8 @@ if (!$user_header_img) {
                     <!-- Desktop User Menu -->
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                            <li class="nav-item"><a class="nav-link fw-bold text-danger" href="admin/dashboard.php">Admin Panel</a></li>
+                            <li class="nav-item"><a class="nav-link fw-bold text-danger" href="admin/dashboard.php">Admin
+                                    Panel</a></li>
                         <?php endif; ?>
                         <li class="nav-item dropdown d-none d-lg-block">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
@@ -132,13 +152,15 @@ if (!$user_header_img) {
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="profile.php">My Profile</a></li>
                                 <li><a class="dropdown-item" href="my_orders.php">My Orders</a></li>
-                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
                                 <li><a class="dropdown-item" href="logout.php">Logout</a></li>
                             </ul>
                         </li>
                         <!-- Mobile Logout Link (since dropdown is hidden on mobile, show simple links) -->
-                         <li class="nav-item d-lg-none"><a class="nav-link" href="my_orders.php">My Orders</a></li>
-                         <li class="nav-item d-lg-none"><a class="nav-link" href="logout.php">Logout</a></li>
+                        <li class="nav-item d-lg-none"><a class="nav-link" href="my_orders.php">My Orders</a></li>
+                        <li class="nav-item d-lg-none"><a class="nav-link" href="logout.php">Logout</a></li>
                     <?php else: ?>
                         <li class="nav-item d-none d-lg-block"><a class="nav-link" href="login.php">Login</a></li>
                         <li class="nav-item d-none d-lg-block"><a class="nav-link" href="register.php">Register</a></li>
@@ -166,3 +188,4 @@ if (!$user_header_img) {
             </div>
         </div>
     </nav>
+    <main data-barba="container" data-barba-namespace="default">
