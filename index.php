@@ -69,7 +69,8 @@ include 'includes/header.php';
     <div class="row g-4">
         <?php
         // Fetch 4 products for "Best Sellers"
-        $sql = "SELECT * FROM products LIMIT 4";
+        // Fetch 4 products for "Best Sellers"
+        $sql = "SELECT * FROM products ORDER BY RAND() LIMIT 4";
         $result = $conn->query($sql);
 
         if ($result && $result->num_rows > 0) {
