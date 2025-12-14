@@ -9,9 +9,9 @@
     --text-dark: #212529;
     /* Black text for readability */
     --text-muted: #6c757d;
-    /* Muted color for secondary text */
+    /* Muted na kulay para sa secondary text */
     --bg-light: #f4f6f8;
-    /* Light gray body background */
+    /* Light gray na background ng body */
     --bg-card: #ffffff;
 
     --bg-navbar: #ffffff;
@@ -41,7 +41,7 @@
     --bg-navbar: #1e1e1e;
     --bg-navbar-scrolled: rgba(30, 30, 30, 0.95);
     --bg-glass: rgba(40, 40, 40, 0.4);
-    /* Dark glass */
+    /* Madilim na glass effect */
     --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     --card-hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
     --border-color: #333;
@@ -51,7 +51,7 @@
     --border-input: #444;
 }
 
-/* Force Bootstrap text utilities to use variables */
+/* Pilitin ang Bootstrap text utilities na gamitin ang variables natin */
 .text-dark,
 .text-body {
     color: var(--text-dark) !important;
@@ -108,7 +108,7 @@ body {
     color: var(--primary-color) !important;
 }
 
-/* Navbar Dropdown Customization */
+/* Navbar Dropdown Customization (Yung lalabas kapag clinic yung user/menu) */
 .dropdown-menu {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -131,7 +131,7 @@ body {
     border-top-color: var(--border-color);
 }
 
-/* Explicit Dark Mode Overrides for Dropdowns */
+/* Explicit na Dark Mode Overrides para sa Dropdowns */
 [data-theme="dark"] .dropdown-menu {
     background-color: var(--bg-card) !important;
     border-color: var(--border-color);
@@ -201,7 +201,7 @@ body {
     background: var(--bg-card);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    /* Fancy ease animation */
+    /* Fancy ease animation (Para smooth ang galaw) */
     overflow: hidden;
     height: 100%;
 
@@ -315,7 +315,7 @@ body {
     object-fit: contain;
 }
 
-/* Cart Styles */
+/* Cart Styles (Mga design para sa cart) */
 .cart-container {
     background: var(--bg-card);
     border-radius: 20px;
@@ -376,9 +376,9 @@ body {
 .form-control[readonly] {
     background-color: var(--bg-input);
     color: var(--text-dark);
-    /* Keep text readable */
+    /* Keep text readable (Panatilihing nababasa) */
     opacity: 0.7;
-    /* Dim it slightly to indicate disabled */
+    /* Padilimin ng konti para mukhang disabled */
     border-color: var(--border-input);
 }
 
@@ -506,7 +506,7 @@ footer {
 }
 
 /* Glassmorphism */
-/* Modern glass effect for overlays */
+/* Modern glass effect para sa overlays */
 .glass-carousel {
     background: var(--bg-glass);
     backdrop-filter: blur(12px);
@@ -532,7 +532,7 @@ footer {
     opacity: 1;
 }
 
-/* Dark Mode Tables */
+/* Tables sa Dark Mode */
 .table {
     color: var(--text-dark);
     border-color: var(--border-color);
@@ -547,7 +547,7 @@ footer {
 .table-hover tbody tr:hover td,
 .table-hover tbody tr:hover th {
     background-color: rgba(255, 255, 255, 0.05);
-    /* Subtle highlight */
+    /* Subtle highlight (Konting highlight) */
     color: var(--text-dark);
 }
 
@@ -569,8 +569,8 @@ input:-webkit-autofill:active {
     -webkit-text-fill-color: var(--text-dark) !important;
 }
 
-/* --- Mobile Responsiveness --- */
-/* Default height for desktop */
+/* --- Mobile Responsiveness (Para sa cellphone) --- */
+/* Default height pag desktop */
 .hero-height {
     height: 500px;
 }

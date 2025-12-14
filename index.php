@@ -95,7 +95,7 @@ include 'includes/header.php';
                                 </a>
                             </h5>
                             <span class="price">₱<?php echo number_format($row["price"], 2); ?></span>
-                            <!-- Form for add to cart functionality -->
+                            <!-- Form para sa pag-add to cart function. Kung naka-login, pwede mag-add via POST method -->
                             <?php if (isset($_SESSION['user_id'])): ?>
                                 <form action="actions/add_to_cart_action.php" method="POST" class="d-grid mt-2">
                                     <input type="hidden" name="product_id" value="<?php echo $row['id']; ?>">

@@ -8,8 +8,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
 check_login();
 
-// Auto-Migration for Address Dissection
-$cols_to_add = ['province', 'barangay']; // country, city, postal_code, address_line exist
+// Auto-Migration para sa Address Dissection (paghiwalay ng address fields)
+$cols_to_add = ['province', 'barangay']; // Tignan kung nag-eexist na ang country, city, postal_code, at address_line
 foreach ($cols_to_add as $col) {
     $check_col = $conn->query("SHOW COLUMNS FROM addresses LIKE '$col'");
     if ($check_col->num_rows == 0) {
@@ -33,11 +33,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $street = sanitize_input($_POST['street']); // Maps to address_line
     $postal_code = sanitize_input($_POST['postal_code']);
 
-    // Update Profile Image
+    // I-update ang Profile Image kung may inupload
     $image_update_sql = "";
     $types = "ss";
     $params = [$full_name, $phone];
-    $null = NULL; // Define null for blob binding
+    $null = NULL; // Define null para sa blob binding
 
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
         $imgContent = file_get_contents($_FILES['profile_image']['tmp_name']);
@@ -46,15 +46,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $params[] = $null;
     }
 
-    // Update User Info
+    // I-update ang User Info sa database
     $sql_user = "UPDATE users SET full_name = ?, phone = ?" . $image_update_sql . " WHERE id = ?";
     $types .= "i";
     $params[] = $user_id;
 
     $stmt_user = $conn->prepare($sql_user);
 
-    // Dynamic binding is tricky with blobs in some drivers, doing standard way for simplicity
-    // If image exists, use send_long_data logic or just separate queries
+    // Medyo tricky ang dynamic binding sa blobs sa ilang drivers, kaya standard way na lang para simple
+    // Kung may image na inupload, hiwalay na logic or gamit ng send_long_data
 
     if (!empty($image_update_sql)) {
         $stmt_user->bind_param("ssbi", $full_name, $phone, $null, $user_id);
@@ -64,17 +64,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if ($stmt_user->execute()) {
-        $_SESSION['user_name'] = $full_name; // Update session name
+        $_SESSION['user_name'] = $full_name; // I-update ang session name
 
-        // Update or Insert Address
-        // Check if address exists
+        // I-update o I-insert ang bagong Address
+        // Tignan kung may existing address na ang user
         $check_addr = "SELECT id FROM addresses WHERE user_id = ?";
         $stmt_check = $conn->prepare($check_addr);
         $stmt_check->bind_param("i", $user_id);
         $stmt_check->execute();
         $res_check = $stmt_check->get_result();
-        // ... (Address logic remains same, but easier to just keep existing layout if I can't see it all in context)
-        // I will copy the address logic back to ensure safety
+        // ... (Address logic remains same, kinopya lang natin para safe)
         if ($res_check->num_rows > 0) {
             $sql_addr = "UPDATE addresses SET country=?, province=?, city=?, barangay=?, address_line=?, postal_code=? WHERE user_id = ?";
             $stmt_addr = $conn->prepare($sql_addr);
@@ -100,7 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // ... (Fetch logic remains)
-// Need to re-fetch user to get new image
+// Kailangan i-fetch ulit ang user para makuha ang bagong image
 $sql = "SELECT * FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -108,7 +107,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
-// Fetch Address Data
+// Kunin ang Address Data mula sa database
 $sql_addr = "SELECT * FROM addresses WHERE user_id = ? LIMIT 1";
 $stmt_addr = $conn->prepare($sql_addr);
 $stmt_addr->bind_param("i", $user_id);
@@ -126,7 +125,7 @@ $stmt_addr->close();
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden text-center p-4">
                 <div class="card-body">
                     <div class="position-relative d-inline-block mb-2">
-                        <!-- Profile Image -->
+                        <!-- Profile Image ni User -->
                         <?php if (!empty($user['profile_image'])): ?>
                             <img src="data:image/png;base64,<?php echo base64_encode($user['profile_image']); ?>"
                                 alt="Profile Picture" class="rounded-circle shadow-sm object-fit-cover" width="150"
@@ -136,7 +135,7 @@ $stmt_addr->close();
                                 alt="Profile Picture" class="rounded-circle shadow-sm" width="150" height="150">
                         <?php endif; ?>
 
-                        <!-- Upload Button Trigger -->
+                        <!-- Button na pang-upload ng picture (Yung camera icon) -->
                         <label for="profile_image_trigger"
                             class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle shadow p-2"
                             style="cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
@@ -166,25 +165,22 @@ $stmt_addr->close();
             </div>
         </div>
 
-        <!-- Main Content -->
+        <!-- Main Content (Yung nasa kanan) -->
         <div class="col-lg-8">
             <form action="profile.php" method="post" enctype="multipart/form-data">
-                <!-- Hidden file input triggered by the camera icon in sidebar -->
-                <!-- To make the sidebar label work, we need this input to have the id 'profile_image_trigger' matches 'for'??
-                      No, 'for' points to id.
-                      So put the input here (hidden) and the label in the sidebar points to it. -->
+                <!-- Nakatagong file input na tine-trigger ng camera icon sa sidebar -->
                 <input type="file" id="profile_image_trigger" name="profile_image" class="d-none" accept="image/*"
                     onchange="this.form.submit()">
 
-                <!-- My Orders Section -->
+                <!-- My Orders Section (Mga order ko) -->
                 <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
                     <div class="card-header border-0 pt-4 px-4 pb-0">
                         <h4 class="fw-bold mb-0">My Orders</h4>
                     </div>
                     <div class="card-body p-4">
                         <?php
-                        // Fetch specific orders for the profile dashboard
-                        // We duplicate the fetch logic here for standard View
+                        // Kunin ang specific orders para sa profile dashboard
+                        // Ginaya natin yung logic dito para sa standard View
                         $order_sql = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 5";
                         $stmt_orders = $conn->prepare($order_sql);
                         $stmt_orders->bind_param("i", $user_id);

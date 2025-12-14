@@ -1,6 +1,5 @@
 <?php
 include 'includes/db_connect.php';
-include 'includes/header.php';
 
 // Get Product ID
 $product_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -14,7 +13,32 @@ $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     $product = $result->fetch_assoc();
+    // Set Dynamic SEO Metadata
+    $page_title = htmlspecialchars($product['name']) . " | Footporium";
+    $page_desc = "Buy " . htmlspecialchars($product['name']) . " at Footporium. " . htmlspecialchars(substr($product['description'], 0, 100)) . "...";
+
+    // Set Open Graph Image
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+    $base_url = $protocol . "://" . $_SERVER['HTTP_HOST'];
+    // Assuming image_proxy.php is in the root directory relative to the site
+    // Adjust path if files are in subfolder, but usually $_SERVER['HTTP_HOST'] is root.
+    // If the site is in a subfolder like /WEB-PROJECTS/Footporium/, we need to account for that.
+    // simpler: relative path from root if we know it, or just use absolute path logic.
+    // Let's rely on relative path from web root if possible, or construct fully qualified.
+    // Since I don't know the exact web root offset easily, I'll assume root or relative.
+    // Actually, header.php uses $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'].
+    // I'll try to find the path to image_proxy.php relative to current script.
+    // Since product_details.php is in root, image_proxy.php is too.
+    $og_image = $base_url . dirname($_SERVER['PHP_SELF']) . "/image_proxy.php?id=" . $product['id'];
 } else {
+    // If product not found, set default or redirect logic (we'll handle redirect in body or here)
+    echo "<div class='container my-5 text-center'><h1>Product not found</h1><a href='products.php' class='btn btn-primary-custom'>Back to Products</a></div>";
+    // Note: If we output HTML here before header is included, it might look broken if we don't include header.
+    // Better logic: INCLUDE header with "Not Found" title, then show error.
+    // However, original code exited. Let's redirect or show proper 404 page structure.
+    // For now, adhering to original logic but including header for clean exit.
+    $page_title = "Product Not Found | Footporium";
+    include 'includes/header.php';
     echo "<div class='container my-5 text-center'><h1>Product not found</h1><a href='products.php' class='btn btn-primary-custom'>Back to Products</a></div>";
     include 'includes/footer.php';
     exit;
@@ -26,6 +50,9 @@ $review_stmt = $conn->prepare($review_sql);
 $review_stmt->bind_param("i", $product_id);
 $review_stmt->execute();
 $reviews_result = $review_stmt->get_result();
+
+// Include Header AFTER fetching data to use $page_title
+include 'includes/header.php';
 ?>
 
 <!-- Product Details Section -->

@@ -7,7 +7,7 @@ include 'includes/functions.php';
 
 check_login();
 
-// Redirect if cart is empty
+// Redirect sa cart page kapag walang laman ang cart o empty ang session
 if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
     header("Location: cart.php");
     exit;
@@ -17,7 +17,7 @@ $user_id = $_SESSION['user_id'];
 $error = '';
 $success = '';
 
-// Calculate Total
+// I-calculate ang Total na babayaran base sa laman ng cart
 $ids = implode(',', array_keys($_SESSION['cart']));
 $sql_cart = "SELECT * FROM products WHERE id IN ($ids)";
 $result_cart = $conn->query($sql_cart);
@@ -32,7 +32,7 @@ if ($result_cart) {
     }
 }
 
-// Handle Checkout Submission
+// I-process ang Checkout kapag sinubmit ang form
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $address_id = null;
     $address_line = sanitize_input($_POST['address']);
@@ -43,13 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $postal_code = sanitize_input($_POST['postal_code']);
     $payment_method = sanitize_input($_POST['payment_method']);
 
-    // 1. Save/Update Address
-    // For simplicity in this mock, we'll insert a new address or use existing logic. 
-    // To match strict DB schema, we might need to check if address exists.
-    // Let's insert a NEW address entry for this specific order context if needed, 
-    // or just update the user's main address. 
-    // The DB schema likely has an `addresses` table.
-    // Let's check if user has an address record; if so update, else insert.
+    // 1. I-save o I-update ang Address
+    // Para simple, i-update natin o gumawa ng bago.
+    // Tignan natin kung may address record na si user.
 
     $check_addr = "SELECT id FROM addresses WHERE user_id = ?";
     $stmt = $conn->prepare($check_addr);
@@ -74,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt_addr->close();
     }
 
-    // 2. Create Order
+    // 2. Gumawa ng bagong Order sa database
     $order_status = 'pending';
     $sql_order = "INSERT INTO orders (user_id, address_id, total_amount, status) VALUES (?, ?, ?, ?)";
     $stmt_order = $conn->prepare($sql_order);
@@ -83,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($stmt_order->execute()) {
         $order_id = $stmt_order->insert_id;
 
-        // 3. Insert Order Items
+        // 3. I-save ang mga items ng Order sa order_items table
         $sql_item = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
         $stmt_item = $conn->prepare($sql_item);
 
@@ -93,23 +89,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         $stmt_item->close();
 
-        // 4. Record Payment (Mock)
-        // Check if payments table exists, otherwise skip (assuming user wants simple structure)
-        // Standard schema usually has payments. Let's try basic insert.
-        $payment_status = 'pending'; // Mock payment usually pending until "verified" or completed immediately if 'credit card'
+        // 4. I-record ang Payment (Mock lang to)
+        // Kung may payments table, i-insert natin.
+        $payment_status = 'pending'; // Pending muna hangga't di verified
         $sql_pay = "INSERT INTO payments (order_id, payment_method, amount, status) VALUES (?, ?, ?, ?)";
         $stmt_pay = $conn->prepare($sql_pay);
-        // If SQL error occurs here (table missing), we handle it gracefully or ignore
+        // Error handling kung sakaling wala yung table
         if ($stmt_pay) {
             $stmt_pay->bind_param("isds", $order_id, $payment_method, $total_price, $payment_status);
             $stmt_pay->execute();
             $stmt_pay->close();
         }
 
-        // 5. Clear Cart
+        // 5. Linisin ang Cart (Empty Cart)
         unset($_SESSION['cart']);
 
-        // 6. Redirect to Success
+        // 6. Pumunta sa Success Page
         header("Location: success.php?order_id=" . $order_id);
         exit;
 
@@ -119,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt_order->close();
 }
 
-// Fetch User Address for Form Pre-fill
+// Kunin ang Address ng User para i-fill sa form (Pre-fill)
 $sql_addr_fetch = "SELECT * FROM addresses WHERE user_id = ? LIMIT 1";
 $stmt = $conn->prepare($sql_addr_fetch);
 $stmt->bind_param("i", $user_id);
