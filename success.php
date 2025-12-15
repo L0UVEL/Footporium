@@ -1,4 +1,7 @@
-<?php include 'includes/header.php'; ?>
+<?php
+include 'includes/db_connect.php';
+include 'includes/header.php';
+?>
 
 <div class="container my-5 text-center">
     <div class="py-5">

@@ -13,23 +13,26 @@ if (isset($_SESSION['cart'])) {
 }
 
 $user_header_img = '';
-// Kung naka-login ang user, kunin ang kanilang profile picture mula sa 'users' table
-if (isset($_SESSION['user_id']) && isset($conn)) {
-    $hid = $_SESSION['user_id'];
-    // Prepare statement para secure ang pag-fetch ng image
-    $hsql = "SELECT profile_image FROM users WHERE id = ?";
-    if ($header_stmt = $conn->prepare($hsql)) {
-        $header_stmt->bind_param("i", $hid);
-        $header_stmt->execute();
-        $h_result = $header_stmt->get_result();
-        // Kung may nakuha tayong result, i-display ang image
-        if ($h_row = $h_result->fetch_assoc()) {
-            if ($h_row['profile_image']) {
-                // I-convert ang binary image data to base64 para mabasa ng browser
-                $user_header_img = '<img src="data:image/png;base64,' . base64_encode($h_row['profile_image']) . '" class="rounded-circle" width="30" height="30" style="object-fit:cover; margin-right:5px;">';
+
+// Optimization: Cache header image in session to avoid fetching BLOB on every page load
+if (isset($_SESSION['user_id'])) {
+    if (isset($_SESSION['user_header_img'])) {
+        $user_header_img = $_SESSION['user_header_img'];
+    } elseif (isset($conn)) {
+        $hid = $_SESSION['user_id'];
+        $hsql = "SELECT profile_image FROM users WHERE id = ?";
+        if ($header_stmt = $conn->prepare($hsql)) {
+            $header_stmt->bind_param("i", $hid);
+            $header_stmt->execute();
+            $h_result = $header_stmt->get_result();
+            if ($h_row = $h_result->fetch_assoc()) {
+                if ($h_row['profile_image']) {
+                    $user_header_img = '<img src="data:image/png;base64,' . base64_encode($h_row['profile_image']) . '" class="rounded-circle" width="30" height="30" style="object-fit:cover; margin-right:5px;">';
+                    $_SESSION['user_header_img'] = $user_header_img; // Cache it
+                }
             }
+            $header_stmt->close();
         }
-        $header_stmt->close();
     }
 }
 if (!$user_header_img) {
@@ -84,19 +87,19 @@ if (!$user_header_img) {
     </script>
     <?php if (isset($product)): ?>
         <script type="application/ld+json">
-                        {
-                          "@context": "https://schema.org",
-                          "@type": "Product",
-                          "name": "<?php echo htmlspecialchars($product['name']); ?>",
-                          "image": "<?php echo isset($og_image) ? $og_image : ''; ?>",
-                          "description": "<?php echo htmlspecialchars(json_encode($product['description']), ENT_QUOTES, 'UTF-8'); ?>",
-                          "offers": {
-                            "@type": "Offer",
-                            "priceCurrency": "PHP",
-                            "price": "<?php echo $product['price']; ?>"
-                          }
-                        }
-                        </script>
+                                {
+                                  "@context": "https://schema.org",
+                                  "@type": "Product",
+                                  "name": "<?php echo htmlspecialchars($product['name']); ?>",
+                                  "image": "<?php echo isset($og_image) ? $og_image : ''; ?>",
+                                  "description": "<?php echo htmlspecialchars(json_encode($product['description']), ENT_QUOTES, 'UTF-8'); ?>",
+                                  "offers": {
+                                    "@type": "Offer",
+                                    "priceCurrency": "PHP",
+                                    "price": "<?php echo $product['price']; ?>"
+                                  }
+                                }
+                                </script>
     <?php endif; ?>
 
     <!-- Bootstrap CSS -->
@@ -124,63 +127,7 @@ if (!$user_header_img) {
     <audio id="bgMusic" loop>
         <source src="assets/audio/bgm.mp3" type="audio/mpeg">
     </audio>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var audio = document.getElementById("bgMusic");
-            audio.volume = 0.5;
-
-            // 1. Restore State Logic
-            const savedTime = sessionStorage.getItem('audioTime');
-            const shouldPlay = sessionStorage.getItem('audioPlaying');
-
-            if (savedTime) {
-                audio.currentTime = parseFloat(savedTime);
-            }
-
-            // 2. Play Logic
-            function startAudio() {
-                audio.play().then(() => {
-                    sessionStorage.setItem('audioPlaying', 'true');
-                    // Remove interaction listeners once playing
-                    ['click', 'mousemove', 'scroll', 'keydown', 'touchstart'].forEach(event => {
-                        document.removeEventListener(event, startAudio);
-                    });
-                }).catch(error => {
-                    console.log("Autoplay blocked/waiting.");
-                });
-            }
-
-            // Attempt to resume if it was playing, or if it's the first time
-            if (shouldPlay === 'true' || !savedTime) {
-                var promise = audio.play();
-                if (promise !== undefined) {
-                    promise.catch(error => {
-                        // If blocked, wait for interaction
-                        ['click', 'mousemove', 'scroll', 'keydown', 'touchstart'].forEach(event => {
-                            document.addEventListener(event, startAudio);
-                        });
-                    });
-                }
-            }
-
-            // 3. Save State on Unload (Page Refresh/Navigation)
-            window.addEventListener('beforeunload', function () {
-                sessionStorage.setItem('audioTime', audio.currentTime);
-                // Only save 'true' if it's actually playing/has duration
-                if (!audio.paused && audio.currentTime > 0) {
-                    sessionStorage.setItem('audioPlaying', 'true');
-                }
-            });
-
-            // Optional: Save periodically just in case of crash
-            setInterval(() => {
-                if (!audio.paused) {
-                    sessionStorage.setItem('audioTime', audio.currentTime);
-                    sessionStorage.setItem('audioPlaying', 'true');
-                }
-            }, 5000);
-        });
-    </script>
+    <!-- Audio Script moved to script.js for better persistence -->
 
 
     <!-- Navigation -->

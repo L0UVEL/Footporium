@@ -53,11 +53,8 @@ function initPersistent() {
             const btn = e.target.closest('.btn');
             const cartItem = btn.closest('.cart-item');
             const productId = cartItem.dataset.id;
-            let action = '';
-
             if (btn.classList.contains('cart-remove-btn')) {
                 action = 'remove';
-                if (!confirm('Are you sure?')) return;
             } else {
                 action = btn.dataset.action;
             }
@@ -73,12 +70,22 @@ function initPersistent() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        // Update Badges
-                        const badges = document.querySelectorAll('.badge.bg-danger');
-                        badges.forEach(b => {
-                            b.innerText = data.cart_count;
-                            b.style.display = data.cart_count > 0 ? 'block' : 'none';
+                        // Update Badges (Specific ID)
+                        const cartBadge = document.getElementById('cart-badge');
+                        if (cartBadge) {
+                            cartBadge.innerText = data.cart_count;
+                            cartBadge.style.display = data.cart_count > 0 ? 'block' : 'none';
+                        }
+
+                        // Fallback/Redundancy for other badges if any
+                        const otherBadges = document.querySelectorAll('.badge.bg-danger');
+                        otherBadges.forEach(b => {
+                            if (b.id !== 'cart-badge') {
+                                b.innerText = data.cart_count;
+                                b.style.display = data.cart_count > 0 ? 'block' : 'none';
+                            }
                         });
+
 
                         // Update Total
                         const totalEl = document.getElementById('cart-total');
@@ -86,15 +93,30 @@ function initPersistent() {
 
                         // Update UI Item
                         if (action === 'remove') {
-                            cartItem.remove();
-                            if (data.cart_empty) location.reload();
+                            // Animation Logic
+                            cartItem.classList.add('fade-out');
+
+                            // Remove after animation
+                            setTimeout(() => {
+                                cartItem.remove();
+                                if (data.cart_empty) location.reload();
+                            }, 500); // Matches CSS transition time
+
                         } else {
                             const input = cartItem.querySelector('.quantity-input');
                             let currentQty = parseInt(input.value);
                             if (action === 'increase') input.value = currentQty + 1;
                             if (action === 'decrease') {
-                                if (currentQty > 1) input.value = currentQty - 1;
-                                else cartItem.remove();
+                                if (currentQty > 1) {
+                                    input.value = currentQty - 1;
+                                } else {
+                                    // Same animation for decrease to 0
+                                    cartItem.classList.add('fade-out');
+                                    setTimeout(() => {
+                                        cartItem.remove();
+                                        if (data.cart_empty) location.reload();
+                                    }, 500);
+                                }
                             }
                         }
                     }
@@ -102,11 +124,66 @@ function initPersistent() {
         }
     });
 
+
+
+    // Audio Persistence (Robust Resume)
+    const audio = document.getElementById("bgMusic");
+    if (audio) {
+        audio.volume = 0.5;
+
+        // Restore
+        const savedTime = localStorage.getItem('bgm_time');
+        const shouldPlay = localStorage.getItem('bgm_playing');
+
+        if (savedTime) {
+            audio.currentTime = parseFloat(savedTime);
+        }
+
+        const playAudio = () => {
+            audio.play().then(() => {
+                localStorage.setItem('bgm_playing', 'true');
+            }).catch(e => console.log("Audio waiting for interaction"));
+        };
+
+        if (shouldPlay === 'true') {
+            playAudio();
+        } else {
+            // First visit interaction
+            const startOnce = () => {
+                playAudio();
+                document.removeEventListener('click', startOnce);
+            };
+            document.addEventListener('click', startOnce);
+        }
+
+        // Save periodically (every 1s is better for "resume" accuracy)
+        setInterval(() => {
+            if (!audio.paused) {
+                localStorage.setItem('bgm_time', audio.currentTime);
+                localStorage.setItem('bgm_playing', 'true');
+            }
+        }, 1000);
+
+        // Also save on unload
+        window.addEventListener('beforeunload', () => {
+            localStorage.setItem('bgm_time', audio.currentTime);
+        });
+    }
+
     // Initialize Barba
     // Makes the site fast (SPA feel) without full refresh
     if (typeof barba !== 'undefined') {
         barba.init({
-            prevent: ({ el }) => el.classList.contains('no-barba') || el.closest('a').href.includes('/admin/') || el.closest('a').href.includes('logout.php'),
+            prevent: ({ el }) => {
+                const href = el.closest('a').href;
+                return el.classList.contains('no-barba') ||
+                    href.includes('/admin/') ||
+                    href.includes('logout.php') ||
+                    href.includes('my_orders.php') || // Force reload for fresh data
+                    href.includes('order_details.php') || // Force reload for fresh data
+                    href.includes('cart.php') || // Force reload for fresh data
+                    href.includes('checkout.php'); // Force reload for fresh data
+            },
             debug: true,
             transitions: [{
                 name: 'opacity-transition',
@@ -125,6 +202,13 @@ function initPersistent() {
                     data.next.container.style.opacity = 1;
                 }
             }]
+        });
+
+        barba.hooks.before(() => {
+            // Force Clear Barba Cache to prevent stale data (Old Cart/Orders)
+            if (barba.cache) {
+                barba.cache.clear();
+            }
         });
 
         barba.hooks.after(() => {
@@ -150,21 +234,29 @@ function initPersistent() {
 function initDynamic() {
     console.log("Footporium Page Init - Dynamic");
 
-    // Scroll Animation
-    // Show elements animation when scrolling
-    const observerOptions = {
-        threshold: 0.1
-    };
+    // Scroll Animation - Optimized
+    // Disconnect previous observations if any (Observer is now persistent but we re-observe fresh elements)
+    if (window.scrollObserver) {
+        window.scrollObserver.disconnect();
+    } else {
+        // Create only once if not exists (though initDynamic runs many times, we assign to window to reuse logic or just recreate efficiently)
+        // Actually, best to create in initPersistent, but if we do it here, let's just make sure we don't leak.
+        // Better pattern: Re-use the same observer instance if possible, or just disconnect old one given elements are gone.
+        // Since elements are replaced by Barba, the old nodes are garbage collected, but the observer might hold ref if not disconnected.
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-            }
-        });
-    }, observerOptions);
+        const observerOptions = {
+            threshold: 0.1
+        };
+        window.scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+    }
 
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    document.querySelectorAll('.reveal').forEach(el => window.scrollObserver.observe(el));
 
     // Add click event to "Add to Cart" buttons (These are re-rendered)
     const addButtons = document.querySelectorAll('.add-to-cart-btn');
@@ -197,11 +289,20 @@ function initDynamic() {
                         this.classList.remove('btn-primary-custom');
 
                         // 3. Update Badge
-                        // Update all badges (mobile/desktop)
+                        // Specific ID update
+                        const cartBadge = document.getElementById('cart-badge');
+                        if (cartBadge) {
+                            cartBadge.innerText = data.cart_count;
+                            cartBadge.style.display = 'block';
+                        }
+
+                        // Redundancy
                         const badges = document.querySelectorAll('.badge.bg-danger');
                         badges.forEach(b => {
-                            b.innerText = data.cart_count;
-                            b.style.display = 'block';
+                            if (b.id !== 'cart-badge') {
+                                b.innerText = data.cart_count;
+                                b.style.display = 'block';
+                            }
                         });
 
                         // 4. Fly to Cart Animation
@@ -286,6 +387,101 @@ function initDynamic() {
         qtyPlus.addEventListener('click', () => {
             let val = parseInt(qtyInput.value) || 1;
             qtyInput.value = val + 1;
+        });
+    }
+    // Checkout Form Handler
+    const checkoutForm = document.getElementById('checkoutForm');
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const btn = this.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+
+            // Loading State
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
+            btn.disabled = true;
+
+            // SweetAlert Loading
+            Swal.fire({
+                title: 'Processing Order',
+                text: 'Please wait while we secure your feet...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch('actions/place_order_action.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Success Redirect
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Order Placed!',
+                            text: 'Redirecting to confirmation...',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = 'success.php?order_id=' + data.order_id;
+                        });
+                    } else {
+                        // Error
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: data.message || 'Something went wrong.'
+                        });
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Server Error',
+                        text: 'Failed to communicate with the server. Please try again.'
+                    });
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+        });
+    }
+
+    // Profile Edit Logic (Added for Barba support)
+    const editBtn = document.getElementById('edit-profile-btn');
+    if (editBtn) {
+        const form = document.getElementById('profileForm');
+        const inputs = form.querySelectorAll('input:not([type="hidden"]):not([type="file"])');
+        const editFlag = document.getElementById('is_edit_mode');
+        let isEditing = false;
+
+        editBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            if (!isEditing) {
+                // Switch to Edit Mode
+                isEditing = true;
+                inputs.forEach(input => input.disabled = false);
+                if (editFlag) editFlag.disabled = false;
+
+                editBtn.innerText = 'Save Changes';
+                editBtn.classList.remove('btn-outline-primary');
+                editBtn.classList.add('btn-primary');
+
+                if (inputs.length > 0) inputs[0].focus();
+            } else {
+                // Save Changes
+                inputs.forEach(input => input.disabled = false);
+                if (editFlag) editFlag.disabled = false;
+                form.submit();
+            }
         });
     }
 }

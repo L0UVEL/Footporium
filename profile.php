@@ -8,14 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 check_login();
 
-// Auto-Migration para sa Address Dissection (paghiwalay ng address fields)
-$cols_to_add = ['province', 'barangay']; // Tignan kung nag-eexist na ang country, city, postal_code, at address_line
-foreach ($cols_to_add as $col) {
-    $check_col = $conn->query("SHOW COLUMNS FROM addresses LIKE '$col'");
-    if ($check_col->num_rows == 0) {
-        $conn->query("ALTER TABLE addresses ADD COLUMN $col VARCHAR(100) AFTER city");
-    }
-}
+// Optimization: Removed auto-migration logic. Ensure DB schema is up to date manually.
 
 $user_id = $_SESSION['user_id'];
 $message = '';
@@ -385,33 +378,6 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
 
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const editBtn = document.getElementById('edit-profile-btn');
-        const form = document.getElementById('profileForm');
-        // Select inputs that are meant to be editable (exclude hidden ones)
-        const inputs = form.querySelectorAll('input:not([type="hidden"]):not([type="file"])');
-        // Select the specific flag
-        const editFlag = document.getElementById('is_edit_mode');
 
-        editBtn.addEventListener('click', function () {
-            if (editBtn.innerText.trim() === 'Edit Profile') {
-                // Enable Editing
-                inputs.forEach(input => input.disabled = false);
-                // Important: Enable the edit mode flag
-                if (editFlag) editFlag.disabled = false;
-
-                editBtn.innerText = 'Save Changes';
-                editBtn.classList.remove('btn-outline-primary');
-                editBtn.classList.add('btn-primary');
-                // Focus the first input
-                if (inputs.length > 0) inputs[0].focus();
-            } else {
-                // Submit Form
-                form.submit();
-            }
-        });
-    });
-</script>
 
 <?php include 'includes/footer.php'; ?>
