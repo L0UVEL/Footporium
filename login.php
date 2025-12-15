@@ -16,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = sanitize_input($_POST['email']);
     $password = $_POST['password'];
 
-    $sql = "SELECT id, full_name, password, role FROM users WHERE email = ?";
+    $sql = "SELECT id, first_name, last_name, password, role FROM users WHERE email = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $row = $result->fetch_assoc();
         if (password_verify($password, $row['password'])) {
             $_SESSION['user_id'] = $row['id'];
-            $_SESSION['user_name'] = $row['full_name'];
+            $_SESSION['user_name'] = $row['first_name'] . ' ' . $row['last_name'];
             $_SESSION['role'] = $row['role'];
 
             if ($row['role'] == 'admin') {
@@ -39,9 +39,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     } else {
         if (!$result) {
-             $error = "Database Error: " . $conn->error;
+            $error = "Database Error: " . $conn->error;
         } else {
-             $error = "No user found with that email.";
+            $error = "No user found with that email.";
         }
     }
     $stmt->close();
@@ -68,7 +68,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
                         <button type="submit" class="btn btn-primary-custom w-100 py-3 mb-3">Login</button>
-                        <p class="text-center mb-0">Don't have an account? <a href="register.php" class="text-primary fw-bold">Register here</a></p>
+                        <p class="text-center mb-0">Don't have an account? <a href="register.php"
+                                class="text-primary fw-bold">Register here</a></p>
                     </form>
                 </div>
             </div>

@@ -29,7 +29,7 @@ if ($result->num_rows > 0) {
     // Actually, header.php uses $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'].
     // I'll try to find the path to image_proxy.php relative to current script.
     // Since product_details.php is in root, image_proxy.php is too.
-    $og_image = $base_url . dirname($_SERVER['PHP_SELF']) . "/image_proxy.php?id=" . $product['id'];
+    $og_image = $base_url . '/' . ($product['image_url'] ?? 'assets/img/placeholder.png');
 } else {
     // If product not found, set default or redirect logic (we'll handle redirect in body or here)
     echo "<div class='container my-5 text-center'><h1>Product not found</h1><a href='products.php' class='btn btn-primary-custom'>Back to Products</a></div>";
@@ -45,7 +45,7 @@ if ($result->num_rows > 0) {
 }
 
 // Fetch Reviews
-$review_sql = "SELECT r.*, u.full_name, u.profile_image FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.product_id = ? ORDER BY r.created_at DESC";
+$review_sql = "SELECT r.*, u.first_name, u.last_name, u.profile_image FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.product_id = ? ORDER BY r.created_at DESC";
 $review_stmt = $conn->prepare($review_sql);
 $review_stmt->bind_param("i", $product_id);
 $review_stmt->execute();
@@ -72,7 +72,10 @@ include 'includes/header.php';
         <div class="col-lg-6">
             <div class="product-detail-img-wrapper rounded-4 shadow-sm position-relative overflow-hidden"
                 style="height: 500px; background-color: var(--bg-card);">
-                <img src="data:image/png;base64,<?php echo base64_encode($product['image_data']); ?>"
+                <?php
+                $mainImg = !empty($product['image_url']) ? $product['image_url'] : 'assets/img/placeholder.png';
+                ?>
+                <img src="<?php echo htmlspecialchars($mainImg); ?>"
                     alt="<?php echo htmlspecialchars($product['name']); ?>" class="img-fluid w-100 h-100"
                     style="object-fit: contain;">
                 <span class="position-absolute top-0 end-0 m-3 badge bg-primary rounded-pill px-3 py-2">Premium</span>
@@ -182,7 +185,10 @@ include 'includes/header.php';
                     <div class="product-card h-100 small-card">
                         <div class="product-img-wrapper" style="height: 200px; padding: 15px;">
                             <a href="product_details.php?id=<?php echo $rel['id']; ?>">
-                                <img src="data:image/png;base64,<?php echo base64_encode($rel['image_data']); ?>"
+                                <?php
+                                $relImg = !empty($rel['image_url']) ? $rel['image_url'] : 'assets/img/placeholder.png';
+                                ?>
+                                <img src="<?php echo htmlspecialchars($relImg); ?>"
                                     alt="<?php echo htmlspecialchars($rel['name']); ?>">
                             </a>
                         </div>
@@ -234,17 +240,19 @@ include 'includes/header.php';
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div class="d-flex align-items-center gap-3">
                                         <?php if (!empty($review['profile_image'])): ?>
-                                            <img src="data:image/png;base64,<?php echo base64_encode($review['profile_image']); ?>"
-                                                alt="<?php echo htmlspecialchars($review['full_name']); ?>" class="rounded-circle"
-                                                style="width: 45px; height: 45px; object-fit: cover;">
+                                            <img src="<?php echo htmlspecialchars($review['profile_image']); ?>"
+                                                alt="<?php echo htmlspecialchars($review['first_name'] . ' ' . $review['last_name']); ?>"
+                                                class="rounded-circle" style="width: 45px; height: 45px; object-fit: cover;">
                                         <?php else: ?>
                                             <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold"
                                                 style="width: 45px; height: 45px; font-size: 1.2rem;">
-                                                <?php echo strtoupper(substr($review['full_name'], 0, 1)); ?>
+                                                <?php echo strtoupper(substr($review['first_name'], 0, 1) . substr($review['last_name'], 0, 1)); ?>
                                             </div>
                                         <?php endif; ?>
                                         <div>
-                                            <h6 class="fw-bold mb-0"><?php echo htmlspecialchars($review['full_name']); ?></h6>
+                                            <h6 class="fw-bold mb-0">
+                                                <?php echo htmlspecialchars($review['first_name'] . ' ' . $review['last_name']); ?>
+                                            </h6>
                                             <small
                                                 class="text-muted"><?php echo date('M d, Y', strtotime($review['created_at'])); ?></small>
                                         </div>

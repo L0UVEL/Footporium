@@ -14,24 +14,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $description = sanitize_input($_POST['description']);
 
     // Image Upload
-    $check = getimagesize($_FILES["image"]["tmp_name"]);
-    if ($check !== false) {
-        $imgContent = file_get_contents($_FILES["image"]["tmp_name"]);
+    if (isset($_FILES["image"]) && $_FILES["image"]["error"] == 0) {
+        // Use helper function to upload to products directory (relative to admin file, need to step out)
+        // Helper defaults to assets/uploads/, but we want assets/uploads/products/
+        // Since helper takes path relative to where it was included (functions.php is in includes, but called from admin/)
+        // Actually, helper uses absolute path for move_uploaded_file, but return relative path.
+        // We just need to pass the target directory string we want in the DB/Path.
 
-        $sql = "INSERT INTO products (name, price, image_data, description) VALUES (?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $null = NULL;
-        $stmt->bind_param("sdbs", $name, $price, $null, $description);
-        $stmt->send_long_data(2, $imgContent);
+        $uploadResult = uploadImage($_FILES["image"], "assets/uploads/products/");
 
-        if ($stmt->execute()) {
-            $success = "Product added successfully!";
+        if ($uploadResult['success']) {
+            $image_url = $uploadResult['path'];
+
+            $sql = "INSERT INTO products (name, price, image_url, description) VALUES (?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sdss", $name, $price, $image_url, $description);
+
+            if ($stmt->execute()) {
+                $success = "Product added successfully!";
+            } else {
+                $error = "Database error: " . $stmt->error;
+            }
+            $stmt->close();
         } else {
-            $error = "Database error: " . $stmt->error;
+            $error = $uploadResult['message'];
         }
-        $stmt->close();
     } else {
-        $error = "File is not an image.";
+        $error = "Please select an image.";
     }
 }
 ?>

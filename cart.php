@@ -36,7 +36,10 @@ include 'includes/header.php';
                             <div class="cart-item d-flex align-items-center justify-content-between flex-wrap gap-3"
                                 data-id="<?php echo $id; ?>">
                                 <div class="d-flex align-items-center gap-3">
-                                    <img src="data:image/png;base64,<?php echo base64_encode($row['image_data']); ?>"
+                                    <?php
+                                    $imgSrc = !empty($row['image_url']) ? $row['image_url'] : 'assets/img/placeholder.png';
+                                    ?>
+                                    <img src="<?php echo htmlspecialchars($imgSrc); ?>"
                                         alt="<?php echo htmlspecialchars($row['name']); ?>" class="cart-img">
                                     <div>
                                         <h5 class="mb-1"><?php echo htmlspecialchars($row['name']); ?></h5>

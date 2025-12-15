@@ -26,7 +26,10 @@ include 'includes/header.php';
                     <div class="product-card">
                         <div class="product-img-wrapper">
                             <a href="product_details.php?id=<?php echo $row['id']; ?>">
-                                <img src="data:image/png;base64,<?php echo base64_encode($row['image_data']); ?>"
+                                <?php
+                                $imgSrc = !empty($row['image_url']) ? $row['image_url'] : 'assets/img/placeholder.png';
+                                ?>
+                                <img src="<?php echo htmlspecialchars($imgSrc); ?>"
                                     alt="<?php echo htmlspecialchars($row["name"]); ?>">
                             </a>
                         </div>

@@ -7,7 +7,7 @@ check_admin();
 
 // Fetch Current Admin User
 $admin_id = $_SESSION['user_id'];
-$sql_user = "SELECT full_name, profile_image FROM users WHERE id = ?";
+$sql_user = "SELECT first_name, last_name, profile_image FROM users WHERE id = ?";
 $stmt_user = $conn->prepare($sql_user);
 $stmt_user->bind_param("i", $admin_id);
 $stmt_user->execute();
@@ -19,7 +19,7 @@ $stats = [
     'products' => $conn->query("SELECT COUNT(*) as count FROM products")->fetch_assoc()['count'],
     'orders' => $conn->query("SELECT COUNT(*) as count FROM orders")->fetch_assoc()['count'],
     'users' => $conn->query("SELECT COUNT(*) as count FROM users WHERE role = 'user'")->fetch_assoc()['count'],
-    'revenue' => $conn->query("SELECT SUM(total_amount) as total FROM orders WHERE status != 'cancelled'")->fetch_assoc()['total'] ?? 0
+    'revenue' => $conn->query("SELECT SUM(total_amount) as total FROM orders WHERE status = 'delivered'")->fetch_assoc()['total'] ?? 0
 ];
 
 // Fetch products
@@ -91,9 +91,9 @@ $result = $conn->query($sql);
                     </div>
                     <a href="../profile.php" class="text-decoration-none">
                         <?php if (!empty($current_user['profile_image'])): ?>
-                            <img src="data:image/png;base64,<?php echo base64_encode($current_user['profile_image']); ?>" alt="Admin" width="40" height="40" class="rounded-circle bg-white p-1 shadow-sm" style="object-fit: cover;">
+                            <img src="../<?php echo htmlspecialchars($current_user['profile_image']); ?>" alt="Admin" width="40" height="40" class="rounded-circle bg-white p-1 shadow-sm" style="object-fit: cover;">
                         <?php else: ?>
-                            <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($current_user['full_name']); ?>&background=800000&color=fff" alt="Admin" width="40" height="40" class="rounded-circle bg-white p-1 shadow-sm">
+                            <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($current_user['first_name'] . ' ' . $current_user['last_name']); ?>&background=800000&color=fff" alt="Admin" width="40" height="40" class="rounded-circle bg-white p-1 shadow-sm">
                         <?php endif; ?>
                     </a>
                 </div>
@@ -169,7 +169,10 @@ $result = $conn->query($sql);
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center gap-3">
-                                            <img src="data:image/png;base64,<?php echo base64_encode($row['image_data']); ?>" class="product-thumb">
+                                            <?php 
+                                                $imgSrc = !empty($row['image_url']) ? '../' . $row['image_url'] : '../assets/img/placeholder.png';
+                                            ?>
+                                            <img src="<?php echo htmlspecialchars($imgSrc); ?>" class="product-thumb">
                                             <div>
                                                 <h6 class="mb-0 fw-bold"><?php echo htmlspecialchars($row['name']); ?></h6>
                                                 <small class="text-muted">ID: #<?php echo $row['id']; ?></small>

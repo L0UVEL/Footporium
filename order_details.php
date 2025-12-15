@@ -28,7 +28,7 @@ if (!$order) {
 }
 
 // Fetch Items
-$sql_items = "SELECT oi.*, p.name, p.image_data 
+$sql_items = "SELECT oi.*, p.name, p.image_url 
               FROM order_items oi 
               JOIN products p ON oi.product_id = p.id 
               WHERE oi.order_id = ?";
@@ -85,7 +85,10 @@ $items = $stmt_items->get_result();
                             <?php while ($item = $items->fetch_assoc()): ?>
                                 <tr>
                                     <td class="ps-4" style="width: 80px;">
-                                        <img src="data:image/png;base64,<?php echo base64_encode($item['image_data']); ?>"
+                                        <?php
+                                        $imgSrc = !empty($item['image_url']) ? $item['image_url'] : 'assets/img/placeholder.png';
+                                        ?>
+                                        <img src="<?php echo htmlspecialchars($imgSrc); ?>"
                                             alt="<?php echo htmlspecialchars($item['name']); ?>" class="rounded"
                                             style="width: 60px; height: 60px; object-fit: cover;">
                                     </td>

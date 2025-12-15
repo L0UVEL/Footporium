@@ -7,7 +7,7 @@ check_admin();
 
 // Fetch Current Admin User (for sidebar/header)
 $admin_id = $_SESSION['user_id'];
-$sql_user = "SELECT full_name, profile_image FROM users WHERE id = ?";
+$sql_user = "SELECT first_name, last_name, profile_image FROM users WHERE id = ?";
 $stmt_user = $conn->prepare($sql_user);
 $stmt_user->bind_param("i", $admin_id);
 $stmt_user->execute();
@@ -15,7 +15,7 @@ $current_user = $stmt_user->get_result()->fetch_assoc();
 $stmt_user->close();
 
 // Fetch Orders
-$sql = "SELECT o.*, u.full_name, u.email 
+$sql = "SELECT o.*, u.first_name, u.last_name, u.email 
         FROM orders o 
         JOIN users u ON o.user_id = u.id 
         ORDER BY o.created_at DESC";
@@ -84,11 +84,11 @@ $result = $conn->query($sql);
                     </div>
                     <a href="../profile.php" class="text-decoration-none">
                         <?php if (!empty($current_user['profile_image'])): ?>
-                            <img src="data:image/png;base64,<?php echo base64_encode($current_user['profile_image']); ?>"
-                                alt="Admin" width="40" height="40" class="rounded-circle bg-white p-1 shadow-sm"
+                            <img src="../<?php echo htmlspecialchars($current_user['profile_image']); ?>" alt="Admin"
+                                width="40" height="40" class="rounded-circle bg-white p-1 shadow-sm"
                                 style="object-fit: cover;">
                         <?php else: ?>
-                            <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($current_user['full_name']); ?>&background=800000&color=fff"
+                            <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($current_user['first_name'] . ' ' . $current_user['last_name']); ?>&background=800000&color=fff"
                                 alt="Admin" width="40" height="40" class="rounded-circle bg-white p-1 shadow-sm">
                         <?php endif; ?>
                     </a>
@@ -116,7 +116,9 @@ $result = $conn->query($sql);
                                         <td class="fw-bold">#<?php echo str_pad($row['id'], 5, '0', STR_PAD_LEFT); ?></td>
                                         <td>
                                             <div>
-                                                <h6 class="mb-0"><?php echo htmlspecialchars($row['full_name']); ?></h6>
+                                                <h6 class="mb-0">
+                                                    <?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?>
+                                                </h6>
                                                 <small class="text-muted"><?php echo htmlspecialchars($row['email']); ?></small>
                                             </div>
                                         </td>

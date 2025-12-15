@@ -3,11 +3,13 @@ USE db_footporium;
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    full_name VARCHAR(100) NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     phone VARCHAR(20),
     password VARCHAR(255) NOT NULL,
-    profile_image LONGBLOB,
+    profile_image VARCHAR(255), -- Changed from LONGBLOB to VARCHAR for file path
     role ENUM('user', 'admin') DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -16,7 +18,9 @@ CREATE TABLE addresses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     address_line TEXT NOT NULL,
+    province VARCHAR(100),
     city VARCHAR(100),
+    barangay VARCHAR(100),
     postal_code VARCHAR(20),
     country VARCHAR(100) DEFAULT 'Philippines',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -27,7 +31,7 @@ CREATE TABLE products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     price DECIMAL(10, 2) NOT NULL, 
-    image_data LONGBLOB,
+    image_url VARCHAR(255), -- Changed from image_data LONGBLOB
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -75,20 +79,20 @@ CREATE TABLE reviews (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-INSERT INTO products (name, price, image_data, description) VALUES
-('Human Foot', 50000.00, LOAD_FILE('C:/Users/Louvel/Desktop/SERVERS_AND_SHETS/WEB-PROJECTS/Footporium/assets/img/human.png'), 'A genuine human foot.'),
-('Chicken Foot', 20.00, LOAD_FILE('C:/Users/Louvel/Desktop/SERVERS_AND_SHETS/WEB-PROJECTS/Footporium/assets/img/chicken.png'), 'Crispy and delicious chicken foot.'),
-('Pig Foot', 100.00, LOAD_FILE('C:/Users/Louvel/Desktop/SERVERS_AND_SHETS/WEB-PROJECTS/Footporium/assets/img/pig.png'), 'Tender pig foot, perfect for stew.'),
-('Prosthetic Foot', 100000.00, LOAD_FILE('C:/Users/Louvel/Desktop/SERVERS_AND_SHETS/WEB-PROJECTS/Footporium/assets/img/prosthetic.png'), 'High-quality prosthetic foot.'),
-('Toasted Foot', 150000.00, LOAD_FILE('C:/Users/Louvel/Desktop/SERVERS_AND_SHETS/WEB-PROJECTS/Footporium/assets/img/toasted.png'), 'Premium toasted foot for collectors.'),
-('Calamares', 200.00, LOAD_FILE('C:/Users/Louvel/Desktop/SERVERS_AND_SHETS/WEB-PROJECTS/Footporium/assets/img/calamares.png'), 'Fried squid rings, technically not a foot but close enough.'),
-('Cow Foot', 175.00, LOAD_FILE('C:/Users/Louvel/Desktop/SERVERS_AND_SHETS/WEB-PROJECTS/Footporium/assets/img/cow.png'), 'Rich and gelatinous cow foot.'),
-('Bigfoot Foot', 0.99, LOAD_FILE('C:/Users/Louvel/Desktop/SERVERS_AND_SHETS/WEB-PROJECTS/Footporium/assets/img/bigfoot.png'), 'The legendary foot itself. Surprisingly cheap.'),
-('Duck Foot', 49.99, LOAD_FILE('C:/Users/Louvel/Desktop/SERVERS_AND_SHETS/WEB-PROJECTS/Footporium/assets/img/duck.png'), 'Webbed duck foot.'),
-('Cat Foot', 9.11, LOAD_FILE('C:/Users/Louvel/Desktop/SERVERS_AND_SHETS/WEB-PROJECTS/Footporium/assets/img/cat.png'), 'Cute cat paw.');
+INSERT INTO products (name, price, image_url, description) VALUES
+('Human Foot', 50000.00, 'assets/img/human.png', 'A genuine human foot.'),
+('Chicken Foot', 20.00, 'assets/img/chicken.png', 'Crispy and delicious chicken foot.'),
+('Pig Foot', 100.00, 'assets/img/pig.png', 'Tender pig foot, perfect for stew.'),
+('Prosthetic Foot', 100000.00, 'assets/img/prosthetic.png', 'High-quality prosthetic foot.'),
+('Toasted Foot', 150000.00, 'assets/img/toasted.png', 'Premium toasted foot for collectors.'),
+('Calamares', 200.00, 'assets/img/calamares.png', 'Fried squid rings, technically not a foot but close enough.'),
+('Cow Foot', 175.00, 'assets/img/cow.png', 'Rich and gelatinous cow foot.'),
+('Bigfoot Foot', 0.99, 'assets/img/bigfoot.png', 'The legendary foot itself. Surprisingly cheap.'),
+('Duck Foot', 49.99, 'assets/img/duck.png', 'Webbed duck foot.'),
+('Cat Foot', 9.11, 'assets/img/cat.png', 'Cute cat paw.');
 
-INSERT INTO users (full_name, email, password, role) VALUES
-('Admin User', 'admin@footporium.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+INSERT INTO users (first_name, last_name, email, password, role) VALUES
+('Admin', 'User', 'admin@footporium.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
  -- Password ng admin ay password
 INSERT INTO reviews (product_id, user_id, rating, comment) VALUES
 (1, 1, 5, 'Best foot I have ever bought!'),

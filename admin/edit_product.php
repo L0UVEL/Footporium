@@ -40,18 +40,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Check if image is being updated
     if (isset($_FILES["image"]) && $_FILES["image"]["error"] == 0) {
-        $check = getimagesize($_FILES["image"]["tmp_name"]);
-        if ($check !== false) {
-            $imgContent = file_get_contents($_FILES["image"]["tmp_name"]);
+        $uploadResult = uploadImage($_FILES["image"], "assets/uploads/products/");
 
-            $sql = "UPDATE products SET name=?, price=?, description=?, image_data=? WHERE id=?";
+        if ($uploadResult['success']) {
+            $image_url = $uploadResult['path'];
+
+            $sql = "UPDATE products SET name=?, price=?, description=?, image_url=? WHERE id=?";
             $stmt = $conn->prepare($sql);
-            $null = NULL; // bind_param requires a variable for 'b' types in some versions/implementations, but sending long data separate usually
-            // prepare for send_long_data
-            $stmt->bind_param("sdsbi", $name, $price, $description, $null, $id);
-            $stmt->send_long_data(3, $imgContent);
+            $stmt->bind_param("sdssi", $name, $price, $description, $image_url, $id);
         } else {
-            $error = "File is not an image.";
+            $error = $uploadResult['message'];
         }
     } else {
         // No image update
@@ -179,8 +177,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <input type="file" class="form-control form-control-lg" id="image" name="image">
                                             <div class="mt-2">
                                                 <small class="text-muted">Current Image:</small><br>
-                                                <img src="data:image/png;base64,<?php echo base64_encode($product['image_data']); ?>"
-                                                    height="60" class="rounded border p-1 mt-1">
+                                                <?php
+                                                $currImg = !empty($product['image_url']) ? '../' . $product['image_url'] : '../assets/img/placeholder.png';
+                                                ?>
+                                                <img src="<?php echo htmlspecialchars($currImg); ?>" height="60"
+                                                    class="rounded border p-1 mt-1">
                                             </div>
                                         </div>
                                     </div>

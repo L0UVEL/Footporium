@@ -24,11 +24,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // 2. Check for Text Fields (Using explicit flag check)
     if (isset($_POST['is_edit_mode'])) {
-        $full_name = sanitize_input($_POST['fullName']);
+        $first_name = sanitize_input($_POST['firstName']);
+        $last_name = sanitize_input($_POST['lastName']);
         $phone = sanitize_input($_POST['phone']);
 
-        $update_fields[] = "full_name = ?";
-        $params[] = $full_name;
+        $update_fields[] = "first_name = ?";
+        $params[] = $first_name;
+        $types .= "s";
+
+        $update_fields[] = "last_name = ?";
+        $params[] = $last_name;
         $types .= "s";
 
         $update_fields[] = "phone = ?";
@@ -45,16 +50,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // 3. Check for Image Upload
-    $imgContent = null;
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
-        $imgContent = file_get_contents($_FILES['profile_image']['tmp_name']);
-        $update_fields[] = "profile_image = ?";
-        $params[] = null; // Placeholder for blob
-        $types .= "b";
+        $uploadResult = uploadImage($_FILES['profile_image'], "assets/uploads/profiles/");
+        if ($uploadResult['success']) {
+            $update_fields[] = "profile_image = ?";
+            $params[] = $uploadResult['path'];
+            $types .= "s";
+        } else {
+            $error = $uploadResult['message'];
+        }
     }
 
-    // 4. Construct Query if there is something to update
-    if (!empty($update_fields)) {
+    // 4. Construct Query if there is something to update and no error
+    if (!empty($update_fields) && empty($error)) {
         $sql_user = "UPDATE users SET " . implode(", ", $update_fields) . " WHERE id = ?";
         $types .= "i";
         $params[] = $user_id;
@@ -64,23 +72,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Bind parameters dynamically
         $stmt_user->bind_param($types, ...$params);
 
-        // Send Blob data if image exists
-        if ($imgContent !== null) {
-            // Find the index of the blob parameter. 
-            // It's the index where 'profile_image = ?' was added.
-            // If text fields exist, image corresponds to specific param index.
-            // Simplified: If image is present, it's the LAST param before WHERE ID.
-            // Logic:
-            // Text fields count: $text_count = isset($_POST['is_edit_mode']) ? 2 : 0;
-            // Blob index (0-based) would be $text_count.
-
-            $blob_param_index = isset($_POST['is_edit_mode']) ? 2 : 0;
-            $stmt_user->send_long_data($blob_param_index, $imgContent);
-        }
+        // REMOVED send_long_data logic since we are using paths now
 
         if ($stmt_user->execute()) {
-            if (isset($full_name)) {
-                $_SESSION['user_name'] = $full_name;
+            if (isset($first_name) && isset($last_name)) {
+                $_SESSION['user_name'] = $first_name . ' ' . $last_name;
             }
             $message = "Profile updated successfully!";
 
@@ -155,11 +151,10 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
                     <div class="position-relative d-inline-block mb-2">
                         <!-- Profile Image ni User -->
                         <?php if (!empty($user['profile_image'])): ?>
-                            <img src="data:image/png;base64,<?php echo base64_encode($user['profile_image']); ?>"
-                                alt="Profile Picture" class="rounded-circle shadow-sm object-fit-cover" width="150"
-                                height="150">
+                            <img src="<?php echo htmlspecialchars($user['profile_image']); ?>" alt="Profile Picture"
+                                class="rounded-circle shadow-sm object-fit-cover" width="150" height="150">
                         <?php else: ?>
-                            <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($user['full_name']); ?>&background=800000&color=fff&size=150"
+                            <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($user['first_name'] . ' ' . $user['last_name']); ?>&background=800000&color=fff&size=150"
                                 alt="Profile Picture" class="rounded-circle shadow-sm" width="150" height="150">
                         <?php endif; ?>
 
@@ -171,7 +166,8 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
                         </label>
                     </div>
 
-                    <h3 class="fw-bold mb-0"><?php echo htmlspecialchars($user['full_name']); ?></h3>
+                    <h3 class="fw-bold mb-0">
+                        <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></h3>
                     <p class="text-muted small mb-1"><?php echo htmlspecialchars($user['email']); ?></p>
 
                     <div class="mb-3">
@@ -300,11 +296,19 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
                         <?php endif; ?>
 
                         <div class="row g-4">
-                            <!-- Full Name (Editable) -->
-                            <div class="col-12">
-                                <label for="fullName" class="form-label text-muted small fw-bold">Full Name</label>
-                                <input type="text" class="form-control" id="fullName" name="fullName"
-                                    value="<?php echo htmlspecialchars($user['full_name']); ?>" placeholder="Full Name"
+                            <!-- First Name (Editable) -->
+                            <div class="col-md-6">
+                                <label for="firstName" class="form-label text-muted small fw-bold">First Name</label>
+                                <input type="text" class="form-control" id="firstName" name="firstName"
+                                    value="<?php echo htmlspecialchars($user['first_name']); ?>"
+                                    placeholder="First Name" disabled>
+                            </div>
+
+                            <!-- Last Name (Editable) -->
+                            <div class="col-md-6">
+                                <label for="lastName" class="form-label text-muted small fw-bold">Last Name</label>
+                                <input type="text" class="form-control" id="lastName" name="lastName"
+                                    value="<?php echo htmlspecialchars($user['last_name']); ?>" placeholder="Last Name"
                                     disabled>
                             </div>
 

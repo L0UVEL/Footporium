@@ -14,7 +14,8 @@ $error = '';
 $success = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $full_name = sanitize_input($_POST['fullName']);
+    $first_name = sanitize_input($_POST['firstName']);
+    $last_name = sanitize_input($_POST['lastName']);
     $email = sanitize_input($_POST['email']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirmPassword'];
@@ -47,9 +48,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             $role = 'user';
 
-            $sql = "INSERT INTO users (full_name, email, password, role) VALUES (?, ?, ?, ?)";
+            $sql = "INSERT INTO users (first_name, last_name, email, password, role) VALUES (?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssss", $full_name, $email, $hashed_password, $role);
+            $stmt->bind_param("sssss", $first_name, $last_name, $email, $hashed_password, $role);
 
             if ($stmt->execute()) {
                 $success = "Registration successful! You can now login.";
@@ -77,9 +78,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="alert alert-success"><?php echo $success; ?></div>
                     <?php endif; ?>
                     <form action="register.php" method="post">
-                        <div class="mb-3">
-                            <label for="fullName" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="fullName" name="fullName" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="lastName" name="lastName" required>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
@@ -87,9 +94,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" 
-                                minlength="8" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}" 
-                                title="Must contain at least one number, one uppercase and lowercase letter, one special character, and at least 8 or more characters" 
+                            <input type="password" class="form-control" id="password" name="password" minlength="8"
+                                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}"
+                                title="Must contain at least one number, one uppercase and lowercase letter, one special character, and at least 8 or more characters"
                                 required>
                             <small class="text-muted" style="font-size: 0.8rem;">
                                 Must contain 8+ chars, uppercase, lowercase, number, and special char.

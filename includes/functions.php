@@ -34,4 +34,47 @@ function check_admin()
         redirect('../index.php');
     }
 }
+// Helper to upload images
+function uploadImage($file, $targetDir = "assets/uploads/")
+{
+    // Define allowed file types
+    $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+    // Get file extension
+    $fileName = basename($file['name']);
+    $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+    // Validate type
+    if (!in_array($fileType, $allowedTypes)) {
+        return ['success' => false, 'message' => 'Invalid file type. Only JPG, PNG, GIF, and WEBP are allowed.'];
+    }
+
+    // Validate size (e.g., max 5MB)
+    if ($file['size'] > 5000000) {
+        return ['success' => false, 'message' => 'File is too large. Max 5MB allowed.'];
+    }
+
+    // Generate unique filename to avoid overwrites
+    $newFileName = uniqid() . '.' . $fileType;
+    $targetPath = $targetDir . $newFileName;
+
+    // We need to resolve relative path for move_uploaded_file, but return relative path for DB
+    // Assuming $targetDir is relative from the script execution root or we pass absolute path?
+    // Let's assume $targetDir is passed relative to public root (e.g. assets/uploads/products/)
+    // But move_uploaded_file needs correct path relative to the executing script. 
+    // Since scripts vary (admin/ vs /), we need to be careful.
+    // Ideally we use absolute path for movement.
+
+    // Let's resolve absolute path based on this file's location which is in includes/
+    // __DIR__ is .../includes
+    // root is dirname(__DIR__)
+    $rootPath = dirname(__DIR__);
+    $absoluteTarget = $rootPath . '/' . $targetPath;
+
+    if (move_uploaded_file($file['tmp_name'], $absoluteTarget)) {
+        return ['success' => true, 'path' => $targetPath];
+    } else {
+        return ['success' => false, 'message' => 'Failed to move uploaded file. Check permissions.'];
+    }
+}
 ?>

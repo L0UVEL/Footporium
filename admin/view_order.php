@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
 }
 
 // Fetch Order Details
-$sql = "SELECT o.*, u.full_name, u.email, u.phone, a.address_line, a.city, a.postal_code, a.country, a.province, a.barangay  
+$sql = "SELECT o.*, u.first_name, u.last_name, u.email, u.phone, a.address_line, a.city, a.postal_code, a.country, a.province, a.barangay  
         FROM orders o
         JOIN users u ON o.user_id = u.id
         JOIN addresses a ON o.address_id = a.id
@@ -40,7 +40,7 @@ if (!$order) {
 }
 
 // Fetch Items
-$sql_items = "SELECT oi.*, p.name, p.image_data 
+$sql_items = "SELECT oi.*, p.name, p.image_url 
               FROM order_items oi 
               JOIN products p ON oi.product_id = p.id 
               WHERE oi.order_id = ?";
@@ -98,8 +98,11 @@ $items = $stmt_items->get_result();
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center gap-3">
-                                                <img src="data:image/png;base64,<?php echo base64_encode($item['image_data']); ?>"
-                                                    width="50" height="50" class="rounded" style="object-fit:cover">
+                                                <?php
+                                                $imgSrc = !empty($item['image_url']) ? '../' . $item['image_url'] : '../assets/img/placeholder.png';
+                                                ?>
+                                                <img src="<?php echo htmlspecialchars($imgSrc); ?>" width="50" height="50"
+                                                    class="rounded" style="object-fit:cover">
                                                 <?php echo htmlspecialchars($item['name']); ?>
                                             </div>
                                         </td>
@@ -126,7 +129,8 @@ $items = $stmt_items->get_result();
                 <div class="card shadow-sm mb-4">
                     <div class="card-header fw-bold">Customer Details</div>
                     <div class="card-body">
-                        <p class="mb-1"><strong>Name:</strong> <?php echo htmlspecialchars($order['full_name']); ?></p>
+                        <p class="mb-1"><strong>Name:</strong>
+                            <?php echo htmlspecialchars($order['first_name'] . ' ' . $order['last_name']); ?></p>
                         <p class="mb-1"><strong>Email:</strong> <?php echo htmlspecialchars($order['email']); ?></p>
                         <p class="mb-1"><strong>Phone:</strong> <?php echo htmlspecialchars($order['phone']); ?></p>
                         <hr>

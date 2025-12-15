@@ -27,7 +27,8 @@ if (isset($_SESSION['user_id'])) {
             $h_result = $header_stmt->get_result();
             if ($h_row = $h_result->fetch_assoc()) {
                 if ($h_row['profile_image']) {
-                    $user_header_img = '<img src="data:image/png;base64,' . base64_encode($h_row['profile_image']) . '" class="rounded-circle" width="30" height="30" style="object-fit:cover; margin-right:5px;">';
+                    $imgSrc = htmlspecialchars($h_row['profile_image']);
+                    $user_header_img = '<img src="' . $imgSrc . '" class="rounded-circle" width="30" height="30" style="object-fit:cover; margin-right:5px;">';
                     $_SESSION['user_header_img'] = $user_header_img; // Cache it
                 }
             }
@@ -73,7 +74,10 @@ if (!$user_header_img) {
         content="<?php echo isset($og_image) ? $og_image : 'http://' . $_SERVER['HTTP_HOST'] . '/assets/img/adolfJackson.png'; ?>">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="assets/img/adolfJackson.png">
+    <?php
+    $path_prefix = (strpos($_SERVER['PHP_SELF'], '/admin/') !== false) ? '../' : '';
+    ?>
+    <link rel="icon" type="image/png" href="<?php echo $path_prefix; ?>assets/img/adolfJackson.png">
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
@@ -87,19 +91,19 @@ if (!$user_header_img) {
     </script>
     <?php if (isset($product)): ?>
         <script type="application/ld+json">
-                                {
-                                  "@context": "https://schema.org",
-                                  "@type": "Product",
-                                  "name": "<?php echo htmlspecialchars($product['name']); ?>",
-                                  "image": "<?php echo isset($og_image) ? $og_image : ''; ?>",
-                                  "description": "<?php echo htmlspecialchars(json_encode($product['description']), ENT_QUOTES, 'UTF-8'); ?>",
-                                  "offers": {
-                                    "@type": "Offer",
-                                    "priceCurrency": "PHP",
-                                    "price": "<?php echo $product['price']; ?>"
-                                  }
-                                }
-                                </script>
+                                            {
+                                              "@context": "https://schema.org",
+                                              "@type": "Product",
+                                              "name": "<?php echo htmlspecialchars($product['name']); ?>",
+                                              "image": "<?php echo isset($og_image) ? $og_image : ''; ?>",
+                                              "description": "<?php echo htmlspecialchars(json_encode($product['description']), ENT_QUOTES, 'UTF-8'); ?>",
+                                              "offers": {
+                                                "@type": "Offer",
+                                                "priceCurrency": "PHP",
+                                                "price": "<?php echo $product['price']; ?>"
+                                              }
+                                            }
+                                            </script>
     <?php endif; ?>
 
     <!-- Bootstrap CSS -->
@@ -125,7 +129,7 @@ if (!$user_header_img) {
     <!-- Background Music -->
     <!-- 'loop' attribute makes the song repeat pag natapos -->
     <audio id="bgMusic" loop>
-        <source src="assets/audio/bgm.mp3" type="audio/mpeg">
+        <source src="<?php echo $path_prefix; ?>assets/audio/bgm.mp3" type="audio/mpeg">
     </audio>
     <!-- Audio Script moved to script.js for better persistence -->
 
