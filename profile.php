@@ -183,6 +183,9 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
                             class="btn btn-outline-primary rounded-pill py-2 fw-bold">
                             Edit Profile
                         </button>
+                        <a href="change_password.php" class="btn btn-outline-secondary rounded-pill py-2 fw-bold">
+                            Change Password
+                        </a>
                         <a href="logout.php" class="btn btn-outline-danger rounded-pill py-2 fw-bold">
                             Logout
                         </a>
