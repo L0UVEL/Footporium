@@ -4,7 +4,7 @@ include 'includes/db_connect.php';
 // Get Product ID
 $product_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-// Fetch Product Details
+// Fetch Product Details: Kunin ang detalye ng product mula sa DB
 $sql = "SELECT * FROM products WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $product_id);
@@ -13,7 +13,7 @@ $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     $product = $result->fetch_assoc();
-    // Set Dynamic SEO Metadata
+    // Set Dynamic SEO Metadata para sa search engines
     $page_title = htmlspecialchars($product['name']) . " | Footporium";
     $page_desc = "Buy " . htmlspecialchars($product['name']) . " at Footporium. " . htmlspecialchars(substr($product['description'], 0, 100)) . "...";
 
@@ -31,7 +31,7 @@ if ($result->num_rows > 0) {
     // Since product_details.php is in root, image_proxy.php is too.
     $og_image = $base_url . '/' . ($product['image_url'] ?? 'assets/img/placeholder.png');
 } else {
-    // If product not found, set default or redirect logic (we'll handle redirect in body or here)
+    // If product not found (Pag wala sa database)
     echo "<div class='container my-5 text-center'><h1>Product not found</h1><a href='products.php' class='btn btn-primary-custom'>Back to Products</a></div>";
     // Note: If we output HTML here before header is included, it might look broken if we don't include header.
     // Better logic: INCLUDE header with "Not Found" title, then show error.
@@ -44,14 +44,14 @@ if ($result->num_rows > 0) {
     exit;
 }
 
-// Fetch Reviews
+// Fetch Reviews: Kunin ang mga reviews at user info na nag-review
 $review_sql = "SELECT r.*, u.first_name, u.last_name, u.profile_image FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.product_id = ? ORDER BY r.created_at DESC";
 $review_stmt = $conn->prepare($review_sql);
 $review_stmt->bind_param("i", $product_id);
 $review_stmt->execute();
 $reviews_result = $review_stmt->get_result();
 
-// Include Header AFTER fetching data to use $page_title
+// Include Header AFTER fetching data para magamit ang dynamic $page_title
 include 'includes/header.php';
 ?>
 
@@ -88,7 +88,7 @@ include 'includes/header.php';
 
             <!-- Average Rating -->
             <?php
-            // Calculate Average
+            // Calculate Average Rating: Kompyutin ang average stars
             $avg_sql = "SELECT AVG(rating) as avg_rating, COUNT(*) as count FROM reviews WHERE product_id = ?";
             $avg_stmt = $conn->prepare($avg_sql);
             $avg_stmt->bind_param("i", $product_id);

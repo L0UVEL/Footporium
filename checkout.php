@@ -5,10 +5,12 @@ if (session_status() === PHP_SESSION_NONE) {
 include 'includes/db_connect.php';
 include 'includes/functions.php';
 
+// Check kung naka-login ang user. Required ito para maka-checkout.
 check_login();
 
 // Redirect sa cart page kapag walang laman ang cart o empty ang session
 if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+    // Walang items, balik sa cart
     header("Location: cart.php");
     exit;
 }
@@ -17,7 +19,7 @@ $user_id = $_SESSION['user_id'];
 $error = '';
 $success = '';
 
-// I-calculate ang Total na babayaran base sa laman ng cart
+// I-calculate ang Total na babayaran base sa laman ng cart (Re-verify price from DB)
 $ids = implode(',', array_keys($_SESSION['cart']));
 $sql_cart = "SELECT * FROM products WHERE id IN ($ids)";
 $result_cart = $conn->query($sql_cart);
@@ -25,16 +27,20 @@ $cart_items = [];
 $total_price = 0;
 if ($result_cart) {
     while ($row = $result_cart->fetch_assoc()) {
+        // I-set ang quantity mula sa session
         $row['qty'] = $_SESSION['cart'][$row['id']];
+        // Compute subtotal
         $row['subtotal'] = $row['price'] * $row['qty'];
+        // Update total
         $total_price += $row['subtotal'];
         $cart_items[] = $row;
     }
 }
 
 // Logic moved to actions/place_order_action.php for AJAX handling
+// (Ang logic ng pag-place ng order ay nasa ibang file na para malinis at secure via AJAX)
 
-// Kunin ang Address ng User para i-fill sa form (Pre-fill)
+// Kunin ang Address ng User para i-fill sa form (Pre-fill) para di na mag-type si user kung may record na
 $sql_addr_fetch = "SELECT * FROM addresses WHERE user_id = ? LIMIT 1";
 $stmt = $conn->prepare($sql_addr_fetch);
 $stmt->bind_param("i", $user_id);

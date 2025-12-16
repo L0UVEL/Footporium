@@ -10,7 +10,7 @@ include 'includes/functions.php';
 check_login();
 $user_id = $_SESSION['user_id'];
 
-// fetch orders
+// Fetch orders: Kunin lahat ng orders ng user, sorted by latest
 $sql = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -40,6 +40,7 @@ $result = $stmt->get_result();
                             <tbody>
                                 <?php if ($result->num_rows > 0): ?>
                                     <?php while ($row = $result->fetch_assoc()): ?>
+                                        <!-- Order Row Loop -->
                                         <tr>
                                             <td class="ps-4 fw-bold text-primary">
                                                 #<?php echo str_pad($row['id'], 5, '0', STR_PAD_LEFT); ?></td>
@@ -48,6 +49,7 @@ $result = $stmt->get_result();
                                             <td>
                                                 <?php
                                                 $status = $row['status'];
+                                                // Gumamit ng match expression para sa badge colors base sa status
                                                 $badgeClass = match ($status) {
                                                     'completed', 'delivered' => 'bg-success text-success',
                                                     'shipped' => 'bg-info text-info',

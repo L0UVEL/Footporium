@@ -12,7 +12,7 @@ if (!isset($_GET['id'])) {
 
 $order_id = intval($_GET['id']);
 
-// Fetch Order (verify ownership)
+// Fetch Order (verify ownership): Kunin ang order details at siguraduhin na sa user ito
 $sql = "SELECT o.*, a.address_line, a.city, a.postal_code, a.country, a.province, a.barangay 
         FROM orders o 
         LEFT JOIN addresses a ON o.address_id = a.id
@@ -23,11 +23,11 @@ $stmt->execute();
 $order = $stmt->get_result()->fetch_assoc();
 
 if (!$order) {
-    // Order not found or doesn't belong to user
+    // Order not found or doesn't belong to user (Security check)
     redirect('my_orders.php');
 }
 
-// Fetch Items
+// Fetch Items: Kunin ang mga biniling items para sa order na ito
 $sql_items = "SELECT oi.*, p.name, p.image_url 
               FROM order_items oi 
               JOIN products p ON oi.product_id = p.id 

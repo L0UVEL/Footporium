@@ -13,7 +13,7 @@ body {
     color: var(--text-color);
 }
 
-/* Sidebar */
+/* Sidebar: Ang navigation sa kaliwa */
 .sidebar {
     width: var(--sidebar-width);
     background-color: var(--sidebar-bg);
@@ -70,14 +70,14 @@ body {
     text-align: center;
 }
 
-/* Main Content */
+/* Main Content: Ang nilalaman sa kanan */
 .main-content {
     margin-left: var(--sidebar-width);
     padding: 30px;
     transition: all 0.3s;
 }
 
-/* Stats Cards */
+/* Stats Cards: Box para sa summary numbers */
 .stats-card {
     background: white;
     border-radius: 12px;
@@ -117,7 +117,7 @@ body {
     font-size: 0.9rem;
 }
 
-/* Tables */
+/* Tables: Styling para sa listahan */
 .admin-table-card {
     background: white;
     border-radius: 12px;

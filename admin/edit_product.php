@@ -9,7 +9,7 @@ $error = '';
 $success = '';
 $product = null;
 
-// Get Product ID
+// Get Product ID: Kunin ang product na ie-edit
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
     $sql = "SELECT * FROM products WHERE id = ?";
@@ -25,13 +25,14 @@ if (isset($_GET['id'])) {
     }
 } else {
     // If no ID and not a POST request (which might carry ID), redirect
+    // Kung walang ID at hindi POST request, bumalik sa dashboard
     if ($_SERVER["REQUEST_METHOD"] != "POST") {
         header("Location: dashboard.php");
         exit;
     }
 }
 
-// Handle Update
+// Handle Update: I-process ang form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id = intval($_POST['id']);
     $name = sanitize_input($_POST['name']);
@@ -52,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $error = $uploadResult['message'];
         }
     } else {
-        // No image update
+        // No image update: Update lang ang text fields kung walang bagong image
         $sql = "UPDATE products SET name=?, price=?, description=? WHERE id=?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sdsi", $name, $price, $description, $id);

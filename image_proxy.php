@@ -3,8 +3,8 @@ include 'includes/db_connect.php';
 
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    // Check if handling products or users (profile) - default to products for SEO
-    // We can add a type param if needed. Defaulting to 'product'
+    // Check kung products or users (profile) ang ihahandle - default to products for SEO
+    // Pwede magdagdag ng type param kung kailangan. Defaulting to 'product' ngayon.
 
     $sql = "SELECT image_data FROM products WHERE id = ?";
     $stmt = $conn->prepare($sql);
@@ -17,10 +17,11 @@ if (isset($_GET['id'])) {
         $stmt->fetch();
 
         if ($image_data) {
+            // I-set ang content type header para marecognize ng browser na image ito
             header("Content-Type: image/png"); // Assuming PNG or JPEG
             echo $image_data;
         } else {
-            // Serve placeholder if data empty but row exists
+            // Serve placeholder if data empty but row exists (Optional)
             // header("Location: assets/img/placeholder.png");
         }
     } else {

@@ -23,6 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $types = "";
 
     // 2. Check for Text Fields (Using explicit flag check)
+    // Kapag nag-submit ng edit form
     if (isset($_POST['is_edit_mode'])) {
         $first_name = sanitize_input($_POST['firstName']);
         $last_name = sanitize_input($_POST['lastName']);
@@ -49,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $postal_code = sanitize_input($_POST['postal_code']);
     }
 
-    // 3. Check for Image Upload
+    // 3. Check for Image Upload (Kung may inupload na bagong picture)
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
         $uploadResult = uploadImage($_FILES['profile_image'], "assets/uploads/profiles/");
         if ($uploadResult['success']) {
@@ -81,8 +82,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = "Profile updated successfully!";
 
             // 5. Update Address ONLY if text fields were present
+            // I-update din ang address kung kasama sa edit
             if (isset($_POST['is_edit_mode'])) {
-                // Check if address exists
+                // Check if address exists (May record na ba o wala pa?)
                 $check_addr = "SELECT id FROM addresses WHERE user_id = ?";
                 $stmt_check = $conn->prepare($check_addr);
                 $stmt_check->bind_param("i", $user_id);
@@ -114,8 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // ... (Fetch logic remains)
-// Kailangan i-fetch ulit ang user para makuha ang bagong image
-// Kailangan i-fetch ulit ang user para makuha ang bagong image
+// Kailangan i-fetch ulit ang user para makuha ang bagong image at updated info
 $sql = "SELECT * FROM users WHERE id = ?";
 if ($stmt = $conn->prepare($sql)) {
     $stmt->bind_param("i", $user_id);
@@ -127,7 +128,7 @@ if ($stmt = $conn->prepare($sql)) {
     die("Error preparing user fetch: " . $conn->error);
 }
 
-// Kunin ang Address Data mula sa database
+// Kunin ang Address Data mula sa database para i-display sa form (Pre-fill)
 $sql_addr = "SELECT * FROM addresses WHERE user_id = ? LIMIT 1";
 if ($stmt_addr = $conn->prepare($sql_addr)) {
     $stmt_addr->bind_param("i", $user_id);
@@ -167,7 +168,8 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
                     </div>
 
                     <h3 class="fw-bold mb-0">
-                        <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></h3>
+                        <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>
+                    </h3>
                     <p class="text-muted small mb-1"><?php echo htmlspecialchars($user['email']); ?></p>
 
                     <div class="mb-3">

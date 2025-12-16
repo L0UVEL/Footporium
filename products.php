@@ -15,11 +15,12 @@ include 'includes/header.php';
 <div class="container mb-5 reveal">
     <div class="row g-4">
         <?php
+        // Kunin lahat ng products sa database
         $sql = "SELECT * FROM products";
         $result = $conn->query($sql);
 
         if ($result && $result->num_rows > 0) {
-            // Output data of each row
+            // I-loop ang bawat product para ipakita sa grid
             while ($row = $result->fetch_assoc()) {
                 ?>
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
@@ -59,6 +60,7 @@ include 'includes/header.php';
             if (!$result) {
                 echo "<div class='col-12 text-center text-danger'>Database Error: " . $conn->error . "<br>Did you import the SQL file?</div>";
             } else {
+                // Pag walang laman ang table
                 echo "<p class='text-center'>No products found.</p>";
             }
         }

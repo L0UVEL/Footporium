@@ -1,5 +1,7 @@
 <?php
+// Siguraduhin na konektado sa database
 include 'includes/db_connect.php';
+// I-load ang common header
 include 'includes/header.php';
 ?>
 <!-- Cart Section -->
@@ -13,12 +15,14 @@ include 'includes/header.php';
                 $total_price = 0;
 
                 if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+                    // Kunin ang mga product IDs mula sa session cart key
                     $ids = array_keys($_SESSION['cart']);
 
-                    // Prepared statement for variable number of IDs
+                    // Gumawa ng dynamic placeholders para sa SQL query base sa dami ng items
                     $types = str_repeat('i', count($ids));
                     $placeholders = implode(',', array_fill(0, count($ids), '?'));
 
+                    // Kunin ang details ng products na nasa cart
                     $sql = "SELECT * FROM products WHERE id IN ($placeholders)";
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param($types, ...$ids);
@@ -28,8 +32,11 @@ include 'includes/header.php';
                     if ($result && $result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {
                             $id = $row['id'];
+                            // Kunin ang quantity mula sa session cart
                             $qty = $_SESSION['cart'][$id];
+                            // Compute subtotal per item
                             $subtotal = $row['price'] * $qty;
+                            // Add to grand total
                             $total_price += $subtotal;
                             ?>
                             <!-- Cart Item -->
@@ -62,9 +69,11 @@ include 'includes/header.php';
                             <?php
                         }
                     } else {
+                        // Kung may IDs sa session pero wala sa DB
                         echo "<p class='text-center text-muted'>Items not found in database.</p>";
                     }
                 } else {
+                    // Kung walang laman ang cart session
                     echo "<p class='text-center text-muted'>Your cart is empty.</p>";
                 }
                 ?>

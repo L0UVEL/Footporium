@@ -3,19 +3,23 @@ include 'includes/db_connect.php';
 include 'includes/functions.php';
 
 if (session_status() === PHP_SESSION_NONE) {
+    // Simulan ang session para magamit ang global $_SESSION variable
     session_start();
 }
 
 if (isset($_SESSION['user_id'])) {
+    // Kung naka-login na ang user, redirect agad sa homepage
     redirect('index.php');
 }
 
 $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Sanitize input para iwas SQL injection
     $email = sanitize_input($_POST['email']);
     $password = $_POST['password'];
 
+    // Query para hanapin ang user gamit ang email
     $sql = "SELECT id, first_name, last_name, password, role FROM users WHERE email = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
@@ -24,7 +28,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($result && $result->num_rows == 1) {
         $row = $result->fetch_assoc();
+        // I-verify kung tama ang password gamit ang password_verify (dahil naka-hash ito)
         if (password_verify($password, $row['password'])) {
+            // Set session variables pagkatapos ng successful login
             $_SESSION['user_id'] = $row['id'];
             $_SESSION['user_name'] = $row['first_name'] . ' ' . $row['last_name'];
             $_SESSION['role'] = $row['role'];

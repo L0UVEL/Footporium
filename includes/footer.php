@@ -1,5 +1,5 @@
 </main>
-<!-- Footer -->
+<!-- Footer: Ang babang bahagi ng website -->
 <footer>
     <div class="container text-center">
         <div class="mb-4 social-links">

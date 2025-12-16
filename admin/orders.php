@@ -5,7 +5,9 @@ include '../includes/functions.php';
 
 check_admin();
 
-// Fetch Current Admin User (for sidebar/header)
+check_admin();
+
+// Fetch Current Admin User (for sidebar/header): Kunin ang admin info para sa UI
 $admin_id = $_SESSION['user_id'];
 $sql_user = "SELECT first_name, last_name, profile_image FROM users WHERE id = ?";
 $stmt_user = $conn->prepare($sql_user);
@@ -14,7 +16,9 @@ $stmt_user->execute();
 $current_user = $stmt_user->get_result()->fetch_assoc();
 $stmt_user->close();
 
-// Fetch Orders
+$stmt_user->close();
+
+// Fetch Orders: Kunin lahat ng orders kasama ang user info
 $sql = "SELECT o.*, u.first_name, u.last_name, u.email 
         FROM orders o 
         JOIN users u ON o.user_id = u.id 

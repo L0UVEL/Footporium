@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['pro
         $_SESSION['cart'] = [];
     }
 
+    // Handle Actions: remove, increase, decrease logic
     if ($action === 'remove') {
         unset($_SESSION['cart'][$product_id]);
     } elseif ($action === 'increase') {
@@ -29,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['pro
         }
     }
 
-    // Recalculate Totals
+    // Recalculate Totals: Compute ulit ang total items at price para sa UI update
     $total_items = 0;
     $total_price = 0;
     $cart_empty = true;

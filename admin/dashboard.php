@@ -5,7 +5,7 @@ include '../includes/functions.php';
 
 check_admin();
 
-// Fetch Current Admin User
+// Fetch Current Admin User: Kunin ang info ng naka-login na admin
 $admin_id = $_SESSION['user_id'];
 $sql_user = "SELECT first_name, last_name, profile_image FROM users WHERE id = ?";
 $stmt_user = $conn->prepare($sql_user);
@@ -14,7 +14,7 @@ $stmt_user->execute();
 $current_user = $stmt_user->get_result()->fetch_assoc();
 $stmt_user->close();
 
-// Stats Queries
+// Stats Queries: Kunin ang bilang ng products, orders, users, at total sales
 $stats = [
     'products' => $conn->query("SELECT COUNT(*) as count FROM products")->fetch_assoc()['count'],
     'orders' => $conn->query("SELECT COUNT(*) as count FROM orders")->fetch_assoc()['count'],
@@ -22,7 +22,7 @@ $stats = [
     'revenue' => $conn->query("SELECT SUM(total_amount) as total FROM orders WHERE status = 'delivered'")->fetch_assoc()['total'] ?? 0
 ];
 
-// Fetch products
+// Fetch products: Ilista ang mga products sa table
 $sql = "SELECT * FROM products ORDER BY id DESC";
 $result = $conn->query($sql);
 ?>

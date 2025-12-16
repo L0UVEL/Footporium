@@ -9,8 +9,8 @@ function sanitize_input($data)
     return $data;
 }
 
-// Helper paramakpag-redirect sa ibang page
-// Stops script execution after redirect
+// Helper para makapag-redirect sa ibang page
+// Stops script execution after redirect (Huminto agad pagkatapos lumipat)
 function redirect($url)
 {
     header("Location: $url");
@@ -34,7 +34,7 @@ function check_admin()
         redirect('../index.php');
     }
 }
-// Helper to upload images
+// Helper to upload images: Function para sa pag-upload ng pictures
 function uploadImage($file, $targetDir = "assets/uploads/")
 {
     // Define allowed file types

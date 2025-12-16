@@ -8,7 +8,7 @@ check_login();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_SESSION['user_id'];
     $product_id = intval($_POST['product_id']);
-    $order_id = intval($_POST['order_id']); // Helps redirection
+    $order_id = intval($_POST['order_id']); // Helps redirection pabalik sa order details
     $rating = intval($_POST['rating']);
     $comment = sanitize_input($_POST['comment']);
 
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Insert review
+    // Insert review: I-save ang review sa database
     $sql = "INSERT INTO reviews (product_id, user_id, rating, comment) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("iiis", $product_id, $user_id, $rating, $comment);

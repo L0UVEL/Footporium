@@ -11,7 +11,9 @@ include 'includes/header.php';
         <h1 class="fw-bold mb-3">Thank You for Your Order!</h1>
         <p class="lead text-muted mb-4">Your order has been placed successfully.</p>
 
-        <?php if (isset($_GET['order_id'])): ?>
+        <?php
+        // Ipakita ang Order ID kung meron
+        if (isset($_GET['order_id'])): ?>
             <div class="alert alert-secondary d-inline-block px-4 py-2 rounded-pill mb-5">
                 Order ID: <strong>#<?php echo str_pad(intval($_GET['order_id']), 5, '0', STR_PAD_LEFT); ?></strong>
             </div>

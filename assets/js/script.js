@@ -15,10 +15,11 @@ function initPersistent() {
         }
     });
 
-    // Theme Toggle Logic
+    // Theme Toggle Logic: Logic para sa pagpapalit ng theme (Dark/Light)
     const body = document.documentElement;
 
     function updateIcons(theme) {
+        // Update icon based on theme (Araw kung dark mode, Buwan kung light mode)
         document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
             icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
         });
@@ -48,6 +49,7 @@ function initPersistent() {
     });
 
     // Cart Page Interactions (Delegation - Body is persistent)
+    // Gamit ang delegation para gumana kahit magbago ang content ng cart
     document.body.addEventListener('click', function (e) {
         if (e.target.closest('.cart-update-btn') || e.target.closest('.cart-remove-btn')) {
             const btn = e.target.closest('.btn');
@@ -140,6 +142,7 @@ function initPersistent() {
         }
 
         const playAudio = () => {
+            // Subukang i-play ang audio
             audio.play().then(() => {
                 localStorage.setItem('bgm_playing', 'true');
             }).catch(e => console.log("Audio waiting for interaction"));
@@ -235,7 +238,8 @@ function initDynamic() {
     console.log("Footporium Page Init - Dynamic");
 
     // Scroll Animation - Optimized
-    // Disconnect previous observations if any (Observer is now persistent but we re-observe fresh elements)
+    // Gamit ang IntersectionObserver para malaman kung kita na element sa screen
+    // Disconnect previous observations if any
     if (window.scrollObserver) {
         window.scrollObserver.disconnect();
     } else {
@@ -259,6 +263,7 @@ function initDynamic() {
     document.querySelectorAll('.reveal').forEach(el => window.scrollObserver.observe(el));
 
     // Add click event to "Add to Cart" buttons (These are re-rendered)
+    // Lagyan ng event listener ang mga Add to Cart buttons
     const addButtons = document.querySelectorAll('.add-to-cart-btn');
 
     addButtons.forEach(button => {

@@ -29,7 +29,7 @@ if (isset($_SESSION['user_id'])) {
                 if ($h_row['profile_image']) {
                     $imgSrc = htmlspecialchars($h_row['profile_image']);
                     $user_header_img = '<img src="' . $imgSrc . '" class="rounded-circle" width="30" height="30" style="object-fit:cover; margin-right:5px;">';
-                    $_SESSION['user_header_img'] = $user_header_img; // Cache it
+                    $_SESSION['user_header_img'] = $user_header_img; // Cache it (I-save sa session para mabilis)
                 }
             }
             $header_stmt->close();
@@ -47,7 +47,7 @@ if (!$user_header_img) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Dynamic Title & Description -->
+    <!-- Dynamic Title & Description: Iba-iba ang title depende sa page -->
     <title><?php echo isset($page_title) ? $page_title : 'Footporium | Premium Footwear'; ?></title>
     <meta name="description"
         content="<?php echo isset($page_desc) ? $page_desc : 'Footporium - Discover the most unique and premium collection of feet.'; ?>">
@@ -91,19 +91,19 @@ if (!$user_header_img) {
     </script>
     <?php if (isset($product)): ?>
         <script type="application/ld+json">
-                                            {
-                                              "@context": "https://schema.org",
-                                              "@type": "Product",
-                                              "name": "<?php echo htmlspecialchars($product['name']); ?>",
-                                              "image": "<?php echo isset($og_image) ? $og_image : ''; ?>",
-                                              "description": "<?php echo htmlspecialchars(json_encode($product['description']), ENT_QUOTES, 'UTF-8'); ?>",
-                                              "offers": {
-                                                "@type": "Offer",
-                                                "priceCurrency": "PHP",
-                                                "price": "<?php echo $product['price']; ?>"
-                                              }
-                                            }
-                                            </script>
+                                                {
+                                                  "@context": "https://schema.org",
+                                                  "@type": "Product",
+                                                  "name": "<?php echo htmlspecialchars($product['name']); ?>",
+                                                  "image": "<?php echo isset($og_image) ? $og_image : ''; ?>",
+                                                  "description": "<?php echo htmlspecialchars(json_encode($product['description']), ENT_QUOTES, 'UTF-8'); ?>",
+                                                  "offers": {
+                                                    "@type": "Offer",
+                                                    "priceCurrency": "PHP",
+                                                    "price": "<?php echo $product['price']; ?>"
+                                                  }
+                                                }
+                                                </script>
     <?php endif; ?>
 
     <!-- Bootstrap CSS -->

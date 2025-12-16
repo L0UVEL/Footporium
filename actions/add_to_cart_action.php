@@ -2,7 +2,7 @@
 session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Check if user is logged in
+    // Check if user is logged in (Kailangan naka-login para makapag-add to cart)
     if (!isset($_SESSION['user_id'])) {
         header("Location: ../login.php");
         exit();
@@ -12,12 +12,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $quantity = intval($_POST['quantity']);
 
     if ($product_id > 0 && $quantity > 0) {
-        // Initialize cart if not exists
+        // Initialize cart if not exists (Kung wala pang cart session, gumawa ng bago)
         if (!isset($_SESSION['cart'])) {
             $_SESSION['cart'] = [];
         }
 
-        // Add or update quantity
+        // Add or update quantity: Check kung nasa cart na, dagdagan lang ang qty. Kung wala, i-add bago.
         if (isset($_SESSION['cart'][$product_id])) {
             $_SESSION['cart'][$product_id] += $quantity;
         } else {
@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    // AJAX Response
+    // AJAX Response: Kung via AJAX ang request, mag-return ng JSON count
     if (isset($_POST['ajax']) && $_POST['ajax'] === '1') {
         $total_items = 0;
         foreach ($_SESSION['cart'] as $qty) {

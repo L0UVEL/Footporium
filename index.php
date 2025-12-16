@@ -13,7 +13,7 @@ include 'includes/header.php';
         <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
         <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
     </div>
-    <!-- 'rounded-top-0' removes the top curve para flat tignan yung edges -->
+    <!-- 'rounded-top-0' removes the top curve para flat tignan yung edges, mas malinis ang dating -->
     <div class="carousel-inner rounded-4 rounded-top-0 shadow-lg">
         <div class="carousel-item active">
             <div class="d-flex align-items-center justify-content-center glass-carousel hero-height rounded-top-0">
@@ -114,7 +114,7 @@ include 'includes/header.php';
                 <?php
             }
         } else {
-            // If walang products found sa database
+            // Kung walang products found sa database, magpakita ng message
             echo '<div class="col-12 text-center"><p>No products found yet.</p></div>';
         }
         ?>

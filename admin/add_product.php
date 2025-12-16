@@ -15,17 +15,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Image Upload
     if (isset($_FILES["image"]) && $_FILES["image"]["error"] == 0) {
-        // Use helper function to upload to products directory (relative to admin file, need to step out)
-        // Helper defaults to assets/uploads/, but we want assets/uploads/products/
-        // Since helper takes path relative to where it was included (functions.php is in includes, but called from admin/)
-        // Actually, helper uses absolute path for move_uploaded_file, but return relative path.
-        // We just need to pass the target directory string we want in the DB/Path.
-
+        // Use helper function to upload to products directory
+        // Ang helper function ay nag-a-upload sa assets/uploads/, pero gusto natin sa 'products' subfolder.
         $uploadResult = uploadImage($_FILES["image"], "assets/uploads/products/");
 
         if ($uploadResult['success']) {
             $image_url = $uploadResult['path'];
 
+            // Insert product details to database (I-save ang product info)
             $sql = "INSERT INTO products (name, price, image_url, description) VALUES (?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("sdss", $name, $price, $image_url, $description);

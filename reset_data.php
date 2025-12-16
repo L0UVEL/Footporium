@@ -6,13 +6,14 @@ $message = '';
 $messageType = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reset_data'])) {
-    // Disable foreign key checks to allow truncation if there are constraints
+    // Disable foreign key checks para pwede mag-truncate kahit may constraints
     $conn->query("SET FOREIGN_KEY_CHECKS = 0");
 
     $tables = ['reviews', 'order_items', 'orders'];
     $success = true;
 
     foreach ($tables as $table) {
+        // TRUNCATE table: Burahin lahat ng laman ng table at reset auto-increment ID
         if (!$conn->query("TRUNCATE TABLE $table")) {
             $success = false;
             $message = "Error truncating table $table: " . $conn->error;
@@ -20,6 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reset_data'])) {
         }
     }
 
+    // Enable foreign key checks ulit
     $conn->query("SET FOREIGN_KEY_CHECKS = 1");
 
     if ($success) {

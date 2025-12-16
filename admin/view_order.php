@@ -12,7 +12,9 @@ if (!isset($_GET['id'])) {
 
 $order_id = intval($_GET['id']);
 
-// Update Status Logic
+$order_id = intval($_GET['id']);
+
+// Update Status Logic: Kapag pinalitan ang status sa dropdown
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
     $status = sanitize_input($_POST['status']);
     $stmt = $conn->prepare("UPDATE orders SET status = ? WHERE id = ?");
@@ -24,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
     }
 }
 
-// Fetch Order Details
+// Fetch Order Details: Kunin ang detalye ng order, user, at address
 $sql = "SELECT o.*, u.first_name, u.last_name, u.email, u.phone, a.address_line, a.city, a.postal_code, a.country, a.province, a.barangay  
         FROM orders o
         JOIN users u ON o.user_id = u.id
@@ -39,7 +41,7 @@ if (!$order) {
     die("Order not found.");
 }
 
-// Fetch Items
+// Fetch Items: Kunin ang mga items na binili sa order na ito
 $sql_items = "SELECT oi.*, p.name, p.image_url 
               FROM order_items oi 
               JOIN products p ON oi.product_id = p.id 
