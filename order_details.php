@@ -6,13 +6,14 @@ include 'includes/functions.php';
 check_login();
 $user_id = $_SESSION['user_id'];
 
+// Check kung may ID na pinasa sa URL
 if (!isset($_GET['id'])) {
     redirect('my_orders.php');
 }
 
 $order_id = intval($_GET['id']);
 
-// Fetch Order (verify ownership): Kunin ang order details at siguraduhin na sa user ito
+// Fetch Order (verify ownership): Kunin ang order details at siguraduhin na sa user ito (hindi sa iba)
 $sql = "SELECT o.*, a.address_line, a.city, a.postal_code, a.country, a.province, a.barangay 
         FROM orders o 
         LEFT JOIN addresses a ON o.address_id = a.id
@@ -23,11 +24,11 @@ $stmt->execute();
 $order = $stmt->get_result()->fetch_assoc();
 
 if (!$order) {
-    // Order not found or doesn't belong to user (Security check)
+    // Order not found o hindi sayo ang order (Security check)
     redirect('my_orders.php');
 }
 
-// Fetch Items: Kunin ang mga biniling items para sa order na ito
+// Fetch Items: Kunin ang mga items na kasama sa order na ito
 $sql_items = "SELECT oi.*, p.name, p.image_url 
               FROM order_items oi 
               JOIN products p ON oi.product_id = p.id 
@@ -57,6 +58,7 @@ $items = $stmt_items->get_result();
                             <?php echo date('M d, Y h:i A', strtotime($order['created_at'])); ?></span>
                         <?php
                         $status = $order['status'];
+                        // Kulayan ang badge depende sa status
                         $badgeClass = match ($status) {
                             'completed', 'delivered' => 'bg-success text-success',
                             'shipped' => 'bg-info text-info',
@@ -71,6 +73,7 @@ $items = $stmt_items->get_result();
                         </span>
                     </div>
 
+                    <!-- Cancel button: Makita lang kung pending pa -->
                     <?php if ($status === 'pending'): ?>
                         <a href="actions/cancel_order.php?id=<?php echo $order_id; ?>"
                             class="btn btn-outline-danger btn-sm rounded-pill px-3"
@@ -97,6 +100,7 @@ $items = $stmt_items->get_result();
                                         <small class="text-muted">Unit Price:
                                             ₱<?php echo number_format($item['price'], 2); ?></small>
 
+                                        <!-- Review Button: Lumalabas lang kung delivered/completed na -->
                                         <?php if ($status === 'delivered' || $status === 'completed'): ?>
                                             <div class="mt-2">
                                                 <button type="button"
@@ -127,7 +131,7 @@ $items = $stmt_items->get_result();
                 </div>
             </div>
 
-            <!-- Review Modal -->
+            <!-- Review Modal (Pop-up para sa review) -->
             <div class="modal fade" id="reviewModal" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content rounded-4 border-0">
@@ -172,7 +176,7 @@ $items = $stmt_items->get_result();
             </div>
 
             <style>
-                /* Simple Star Rating CSS */
+                /* Simple Star Rating CSS para sa interactive stars */
                 .rating-stars {
                     display: flex;
                     flex-direction: row-reverse;
@@ -199,6 +203,7 @@ $items = $stmt_items->get_result();
             </style>
 
             <script>
+                // Script para ipasa ang product details sa loob ng modal
                 document.addEventListener('DOMContentLoaded', function () {
                     var reviewModal = document.getElementById('reviewModal');
                     reviewModal.addEventListener('show.bs.modal', function (event) {
@@ -230,7 +235,7 @@ $items = $stmt_items->get_result();
                         </div>
                     </div>
                 </div>
-                <!-- Add Payment Info mock if needed, but address is enough for now -->
+                <!-- Pwede magdagdag ng Payment Info mock dito kung kailangan, pero okay na ang address -->
             </div>
 
         </div>

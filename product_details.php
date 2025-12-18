@@ -1,7 +1,7 @@
 <?php
 include 'includes/db_connect.php';
 
-// Get Product ID
+// Kunin ang Product ID mula sa URL (kung wala, default sa 0)
 $product_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 // Fetch Product Details: Kunin ang detalye ng product mula sa DB
@@ -12,31 +12,20 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
+    // Kapag may nahanap na product, kunin ang data
     $product = $result->fetch_assoc();
-    // Set Dynamic SEO Metadata para sa search engines
+
+    // Set Dynamic SEO Metadata para mabilis mahanap sa search engines (Google)
     $page_title = htmlspecialchars($product['name']) . " | Footporium";
     $page_desc = "Buy " . htmlspecialchars($product['name']) . " at Footporium. " . htmlspecialchars(substr($product['description'], 0, 100)) . "...";
 
-    // Set Open Graph Image
+    // Set Open Graph Image (ito yung litrato na lumalabas pag shi-nare sa Facebook/Messenger)
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
     $base_url = $protocol . "://" . $_SERVER['HTTP_HOST'];
-    // Assuming image_proxy.php is in the root directory relative to the site
-    // Adjust path if files are in subfolder, but usually $_SERVER['HTTP_HOST'] is root.
-    // If the site is in a subfolder like /WEB-PROJECTS/Footporium/, we need to account for that.
-    // simpler: relative path from root if we know it, or just use absolute path logic.
-    // Let's rely on relative path from web root if possible, or construct fully qualified.
-    // Since I don't know the exact web root offset easily, I'll assume root or relative.
-    // Actually, header.php uses $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'].
-    // I'll try to find the path to image_proxy.php relative to current script.
-    // Since product_details.php is in root, image_proxy.php is too.
+    // Ayusin ang path ng image para tama ang pag-load
     $og_image = $base_url . '/' . ($product['image_url'] ?? 'assets/img/placeholder.png');
 } else {
-    // If product not found (Pag wala sa database)
-    echo "<div class='container my-5 text-center'><h1>Product not found</h1><a href='products.php' class='btn btn-primary-custom'>Back to Products</a></div>";
-    // Note: If we output HTML here before header is included, it might look broken if we don't include header.
-    // Better logic: INCLUDE header with "Not Found" title, then show error.
-    // However, original code exited. Let's redirect or show proper 404 page structure.
-    // For now, adhering to original logic but including header for clean exit.
+    // Kapag walang product na nahanap sa database (Error handling)
     $page_title = "Product Not Found | Footporium";
     include 'includes/header.php';
     echo "<div class='container my-5 text-center'><h1>Product not found</h1><a href='products.php' class='btn btn-primary-custom'>Back to Products</a></div>";
@@ -44,14 +33,14 @@ if ($result->num_rows > 0) {
     exit;
 }
 
-// Fetch Reviews: Kunin ang mga reviews at user info na nag-review
+// Fetch Reviews: Kunin ang mga reviews at info ng mga user na nag-review
 $review_sql = "SELECT r.*, u.first_name, u.last_name, u.profile_image FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.product_id = ? ORDER BY r.created_at DESC";
 $review_stmt = $conn->prepare($review_sql);
 $review_stmt->bind_param("i", $product_id);
 $review_stmt->execute();
 $reviews_result = $review_stmt->get_result();
 
-// Include Header AFTER fetching data para magamit ang dynamic $page_title
+// Isama ang Header pagkatapos makuha ang data para magamit ang dynamic $page_title
 include 'includes/header.php';
 ?>
 
@@ -88,7 +77,7 @@ include 'includes/header.php';
 
             <!-- Average Rating -->
             <?php
-            // Calculate Average Rating: Kompyutin ang average stars
+            // Calculate Average Rating: Kompyutin ang average stars mula sa reviews
             $avg_sql = "SELECT AVG(rating) as avg_rating, COUNT(*) as count FROM reviews WHERE product_id = ?";
             $avg_stmt = $conn->prepare($avg_sql);
             $avg_stmt->bind_param("i", $product_id);
@@ -100,6 +89,7 @@ include 'includes/header.php';
             <div class="mb-4 d-flex align-items-center gap-2">
                 <div class="text-warning">
                     <?php
+                    // Gumawa ng loops para sa stars (Full, Half, Empty)
                     for ($i = 1; $i <= 5; $i++) {
                         if ($i <= $avg_rating)
                             echo '<i class="fas fa-star"></i>';
@@ -124,6 +114,7 @@ include 'includes/header.php';
                     <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                     <div class="row g-3">
                         <div class="col-sm-4">
+                            <!-- Quantity Controls: Plus at Minus buttons -->
                             <div class="quantity-control d-flex align-items-center justify-content-between border rounded-pill px-3 py-2"
                                 style="background-color: var(--bg-input);">
                                 <button type="button" class="btn btn-link text-dark p-0 qty-decrease"><i
@@ -174,6 +165,7 @@ include 'includes/header.php';
         <h3 class="fw-bold mb-4">You Might Also Like</h3>
         <div class="row g-4">
             <?php
+            // Magpakita ng ibang products (Random 4) na hindi ito
             $rel_sql = "SELECT * FROM products WHERE id != ? ORDER BY RAND() LIMIT 4";
             $rel_stmt = $conn->prepare($rel_sql);
             $rel_stmt->bind_param("i", $product_id);
@@ -216,6 +208,7 @@ include 'includes/header.php';
                     <span class="fs-4 fw-bold"><?php echo $avg_rating; ?></span>
                     <div class="text-warning">
                         <?php
+                        // Ipakita ang star rating summary
                         for ($i = 1; $i <= 5; $i++) {
                             if ($i <= $avg_rating)
                                 echo '<i class="fas fa-star"></i>';
@@ -239,11 +232,13 @@ include 'includes/header.php';
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div class="d-flex align-items-center gap-3">
+                                        <!-- Profile Image ng nag-review -->
                                         <?php if (!empty($review['profile_image'])): ?>
                                             <img src="<?php echo htmlspecialchars($review['profile_image']); ?>"
                                                 alt="<?php echo htmlspecialchars($review['first_name'] . ' ' . $review['last_name']); ?>"
                                                 class="rounded-circle" style="width: 45px; height: 45px; object-fit: cover;">
                                         <?php else: ?>
+                                            <!-- Initials kung walang profile pic -->
                                             <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold"
                                                 style="width: 45px; height: 45px; font-size: 1.2rem;">
                                                 <?php echo strtoupper(substr($review['first_name'], 0, 1) . substr($review['last_name'], 0, 1)); ?>

@@ -1,5 +1,5 @@
 <?php
-// Include database connection para makapag-query tayo
+// Include database connection para makapag-query tayo sa DB
 include 'includes/db_connect.php';
 // Include header file (dito nakalagay yung navbar, styles, at audio)
 include 'includes/header.php';
@@ -71,8 +71,8 @@ include 'includes/header.php';
 
     <div class="row g-4">
         <?php
-        // Get 4 products para sa "Best Sellers" section
-        // ORDER BY RAND() para random yung products every refresh
+        // Kumuha ng 4 products para sa "Best Sellers" section
+        // ORDER BY RAND() para random yung products na lalabas tuwing magre-refresh
         $sql = "SELECT * FROM products ORDER BY RAND() LIMIT 4";
         $result = $conn->query($sql);
 
@@ -98,7 +98,7 @@ include 'includes/header.php';
                                 </a>
                             </h5>
                             <span class="price">₱<?php echo number_format($row["price"], 2); ?></span>
-                            <!-- Form para sa pag-add to cart function. Kung naka-login, pwede mag-add via POST method -->
+                            <!-- Form para sa pag-add to cart. Kung naka-login, pwede mag-add via POST method -->
                             <?php if (isset($_SESSION['user_id'])): ?>
                                 <form action="actions/add_to_cart_action.php" method="POST" class="d-grid mt-2">
                                     <input type="hidden" name="product_id" value="<?php echo $row['id']; ?>">
@@ -114,7 +114,7 @@ include 'includes/header.php';
                 <?php
             }
         } else {
-            // Kung walang products found sa database, magpakita ng message
+            // Kung walang products na mahanap sa database
             echo '<div class="col-12 text-center"><p>No products found yet.</p></div>';
         }
         ?>

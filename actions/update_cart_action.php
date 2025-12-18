@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['pro
         $_SESSION['cart'] = [];
     }
 
-    // Handle Actions: remove, increase, decrease logic
+    // Handle Actions: Logic para sa remove, increase, at decrease quantity
     if ($action === 'remove') {
         unset($_SESSION['cart'][$product_id]);
     } elseif ($action === 'increase') {
@@ -24,24 +24,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['pro
     } elseif ($action === 'decrease') {
         if (isset($_SESSION['cart'][$product_id])) {
             $_SESSION['cart'][$product_id]--;
+            // Kapag naging zero or less ang qty, alisin na sa cart
             if ($_SESSION['cart'][$product_id] <= 0) {
                 unset($_SESSION['cart'][$product_id]);
             }
         }
     }
 
-    // Recalculate Totals: Compute ulit ang total items at price para sa UI update
+    // Recalculate Totals: Compute ulit ang total items at presyo para ma-update ang UI
     $total_items = 0;
     $total_price = 0;
     $cart_empty = true;
 
     if (!empty($_SESSION['cart'])) {
         $cart_empty = false;
-        $cart_empty = false;
         $ids = array_keys($_SESSION['cart']);
 
         if (!empty($ids)) {
-            // Prepared statement for variable number of IDs
+            // Gumamit ng prepared statement para sa variable number of IDs (security)
             $types = str_repeat('i', count($ids));
             $placeholders = implode(',', array_fill(0, count($ids), '?'));
 
@@ -61,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['pro
         }
     }
 
+    // Return JSON response para sa AJAX update sa frontend
     echo json_encode([
         'status' => 'success',
         'cart_count' => $total_items,

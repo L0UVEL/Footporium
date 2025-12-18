@@ -1,6 +1,6 @@
 <?php
 session_start();
-// Prevent Caching
+// Prevent Caching para hindi ma-load ang lumang status
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies.
@@ -10,7 +10,7 @@ include 'includes/functions.php';
 check_login();
 $user_id = $_SESSION['user_id'];
 
-// Fetch orders: Kunin lahat ng orders ng user, sorted by latest
+// Fetch orders: Kunin lahat ng orders ng user, sorted by pinakabago
 $sql = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);

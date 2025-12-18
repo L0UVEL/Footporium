@@ -3,13 +3,14 @@ session_start();
 include '../includes/db_connect.php';
 include '../includes/functions.php';
 
+// Verify Admin Access
 check_admin();
 
 $error = '';
 $success = '';
 $product = null;
 
-// Get Product ID: Kunin ang product na ie-edit
+// Get Product ID: Kunin ang product na ie-edit mula sa URL
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
     $sql = "SELECT * FROM products WHERE id = ?";
@@ -20,32 +21,35 @@ if (isset($_GET['id'])) {
     if ($result->num_rows > 0) {
         $product = $result->fetch_assoc();
     } else {
+        // Product not found, balik sa dashboard
         header("Location: dashboard.php");
         exit;
     }
 } else {
-    // If no ID and not a POST request (which might carry ID), redirect
-    // Kung walang ID at hindi POST request, bumalik sa dashboard
+    // If no ID and not a POST request, redirect
+    // Kung walang ID at hindi naman nag-save (POST), bumalik sa dashboard
     if ($_SERVER["REQUEST_METHOD"] != "POST") {
         header("Location: dashboard.php");
         exit;
     }
 }
 
-// Handle Update: I-process ang form submission
+// Handle Update: I-process ang form submission (Pag-save ng changes)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id = intval($_POST['id']);
     $name = sanitize_input($_POST['name']);
     $price = floatval($_POST['price']);
     $description = sanitize_input($_POST['description']);
 
-    // Check if image is being updated
+    // Check if image is being updated: May inupload bang bagong picture?
     if (isset($_FILES["image"]) && $_FILES["image"]["error"] == 0) {
+        // Upload new image
         $uploadResult = uploadImage($_FILES["image"], "assets/uploads/products/");
 
         if ($uploadResult['success']) {
             $image_url = $uploadResult['path'];
 
+            // Update with new image: Palitan lahat ng info kasama ang image
             $sql = "UPDATE products SET name=?, price=?, description=?, image_url=? WHERE id=?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("sdssi", $name, $price, $description, $image_url, $id);
@@ -53,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $error = $uploadResult['message'];
         }
     } else {
-        // No image update: Update lang ang text fields kung walang bagong image
+        // No image update: Update text fields lang kung walang bagong image
         $sql = "UPDATE products SET name=?, price=?, description=? WHERE id=?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sdsi", $name, $price, $description, $id);
@@ -62,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($error)) {
         if ($stmt->execute()) {
             $success = "Product updated successfully!";
-            // Refresh product data
+            // Refresh product data para makita agad ang changes sa form
             $stmt_refresh = $conn->prepare("SELECT * FROM products WHERE id = ?");
             $stmt_refresh->bind_param("i", $id);
             $stmt_refresh->execute();
@@ -111,7 +115,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <i class="fas fa-box"></i> Orders
             </a>
 
-            <!-- Using active class for context, though not strictly in sidebar links -->
+            <!-- Active indicator for context -->
             <a href="#" class="nav-link active">
                 <i class="fas fa-edit"></i> Edit Product
             </a>
@@ -131,7 +135,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <div class="row justify-content-center">
                 <div class="col-lg-8">
-                    <!-- Header -->
+                    <!-- Page Header -->
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <h2 class="fw-bold mb-1">Edit Product</h2>
@@ -142,6 +146,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </a>
                     </div>
 
+                    <!-- Edit Form Card -->
                     <div class="card shadow-sm border-0 rounded-4">
                         <div class="card-body p-5">
                             <?php if ($error): ?>
@@ -179,6 +184,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <div class="mt-2">
                                                 <small class="text-muted">Current Image:</small><br>
                                                 <?php
+                                                // Display current image preview
                                                 $currImg = !empty($product['image_url']) ? '../' . $product['image_url'] : '../assets/img/placeholder.png';
                                                 ?>
                                                 <img src="<?php echo htmlspecialchars($currImg); ?>" height="60"

@@ -2,28 +2,29 @@
 include 'includes/db_connect.php';
 include 'includes/functions.php';
 
+// Simulan ang session kung hindi pa naka-start
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Siguraduhin na naka-login ang user
 check_login();
 
-// Optimization: Removed auto-migration logic. Ensure DB schema is up to date manually.
+// Optimization: Removed auto-migration logic. Manual schema update required.
 
 $user_id = $_SESSION['user_id'];
 $message = '';
 $error = '';
 
-// Handle Profile Update
+// Handle Profile Update: Kapag nag-submit ng form (POST)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // 1. Initialize variables for dynamic SQL construction
+    // 1. Initialize variables para sa dynamic SQL construction
     $update_fields = [];
     $params = [];
     $types = "";
 
-    // 2. Check for Text Fields (Using explicit flag check)
-    // Kapag nag-submit ng edit form
+    // 2. Check for Text Fields (Kung naka-edit mode)
     if (isset($_POST['is_edit_mode'])) {
         $first_name = sanitize_input($_POST['firstName']);
         $last_name = sanitize_input($_POST['lastName']);
@@ -41,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $params[] = $phone;
         $types .= "s";
 
-        // Address Fields
+        // Address Fields (Bansa, Probinsya, Siyudad, atbp.)
         $country = sanitize_input($_POST['country']);
         $province = sanitize_input($_POST['province']);
         $city = sanitize_input($_POST['city']);
@@ -62,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    // 4. Construct Query if there is something to update and no error
+    // 4. Construct Query kung may babaguhin at walang error
     if (!empty($update_fields) && empty($error)) {
         $sql_user = "UPDATE users SET " . implode(", ", $update_fields) . " WHERE id = ?";
         $types .= "i";
@@ -70,21 +71,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $stmt_user = $conn->prepare($sql_user);
 
-        // Bind parameters dynamically
+        // Bind parameters nang dynamic
         $stmt_user->bind_param($types, ...$params);
 
-        // REMOVED send_long_data logic since we are using paths now
-
         if ($stmt_user->execute()) {
+            // Update session name kung nagbago ang pangalan
             if (isset($first_name) && isset($last_name)) {
                 $_SESSION['user_name'] = $first_name . ' ' . $last_name;
             }
             $message = "Profile updated successfully!";
 
-            // 5. Update Address ONLY if text fields were present
-            // I-update din ang address kung kasama sa edit
+            // 5. Update Address LANG kung kasama sa edit mode
             if (isset($_POST['is_edit_mode'])) {
-                // Check if address exists (May record na ba o wala pa?)
+                // Check kung may address record na (Update o Insert?)
                 $check_addr = "SELECT id FROM addresses WHERE user_id = ?";
                 $stmt_check = $conn->prepare($check_addr);
                 $stmt_check->bind_param("i", $user_id);
@@ -92,10 +91,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $res_check = $stmt_check->get_result();
 
                 if ($res_check->num_rows > 0) {
+                    // Update existing address
                     $sql_addr = "UPDATE addresses SET country=?, province=?, city=?, barangay=?, address_line=?, postal_code=? WHERE user_id = ?";
                     $stmt_addr = $conn->prepare($sql_addr);
                     $stmt_addr->bind_param("ssssssi", $country, $province, $city, $barangay, $street, $postal_code, $user_id);
                 } else {
+                    // Insert new address
                     $sql_addr = "INSERT INTO addresses (user_id, country, province, city, barangay, address_line, postal_code) VALUES (?, ?, ?, ?, ?, ?, ?)";
                     $stmt_addr = $conn->prepare($sql_addr);
                     $stmt_addr->bind_param("issssss", $user_id, $country, $province, $city, $barangay, $street, $postal_code);
@@ -115,8 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// ... (Fetch logic remains)
-// Kailangan i-fetch ulit ang user para makuha ang bagong image at updated info
+// Fetch User Data: Kailangan i-fetch ulit para updated ang makikita
 $sql = "SELECT * FROM users WHERE id = ?";
 if ($stmt = $conn->prepare($sql)) {
     $stmt->bind_param("i", $user_id);
@@ -128,7 +128,7 @@ if ($stmt = $conn->prepare($sql)) {
     die("Error preparing user fetch: " . $conn->error);
 }
 
-// Kunin ang Address Data mula sa database para i-display sa form (Pre-fill)
+// Kunin ang Address Data para i-display sa form (Pre-fill)
 $sql_addr = "SELECT * FROM addresses WHERE user_id = ? LIMIT 1";
 if ($stmt_addr = $conn->prepare($sql_addr)) {
     $stmt_addr->bind_param("i", $user_id);
@@ -137,15 +137,14 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
     $address = $res_addr->fetch_assoc();
     $stmt_addr->close();
 } else {
-    // Optional: die or just ignore address error
-    $address = []; // fallback
+    $address = []; // Fallback kung walang address
 }
 ?>
 <?php include 'includes/header.php'; ?>
 
 <div class="container my-5">
     <div class="row">
-        <!-- Sidebar Profile Card -->
+        <!-- Sidebar: Profile Card -->
         <div class="col-lg-4 mb-4">
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden text-center p-4">
                 <div class="card-body">
@@ -155,11 +154,12 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
                             <img src="<?php echo htmlspecialchars($user['profile_image']); ?>" alt="Profile Picture"
                                 class="rounded-circle shadow-sm object-fit-cover" width="150" height="150">
                         <?php else: ?>
+                            <!-- Gamit ang UI Avatars kung walang image -->
                             <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($user['first_name'] . ' ' . $user['last_name']); ?>&background=800000&color=fff&size=150"
                                 alt="Profile Picture" class="rounded-circle shadow-sm" width="150" height="150">
                         <?php endif; ?>
 
-                        <!-- Button na pang-upload ng picture (Yung camera icon) -->
+                        <!-- Camera Icon Button: Pang-upload ng bagong picture -->
                         <label for="profile_image_trigger"
                             class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle shadow p-2"
                             style="cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
@@ -194,13 +194,13 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
             </div>
         </div>
 
-        <!-- Main Content (Yung nasa kanan) -->
+        <!-- Main Content (Right Side) -->
         <div class="col-lg-8">
             <form id="profileForm" action="profile.php" method="post" enctype="multipart/form-data">
-                <!-- NEW Explicit Edit Mode Flag (Disabled by default, enabled by JS) -->
+                <!-- Explicit Edit Mode Flag (Disabled by default, ine-enable ng JS pag nag-edit) -->
                 <input type="hidden" name="is_edit_mode" id="is_edit_mode" value="1" disabled>
 
-                <!-- Nakatagong file input na tine-trigger ng camera icon sa sidebar -->
+                <!-- Hidden file input triggered by camera icon -->
                 <input type="file" id="profile_image_trigger" name="profile_image" class="d-none" accept="image/*"
                     onchange="this.form.submit()">
 
@@ -211,17 +211,15 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
                     </div>
                     <div class="card-body p-4">
                         <?php
-                        // Kunin ang specific orders para sa profile dashboard
-                        // Ginaya natin yung logic dito para sa standard View
+                        // Kunin ang latest 5 orders ng user
                         $order_sql = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 5";
-                        $orders_result = false; // Default safe value
-                        
+                        $orders_result = false;
+
                         if ($stmt_orders = $conn->prepare($order_sql)) {
                             $stmt_orders->bind_param("i", $user_id);
                             $stmt_orders->execute();
                             $orders_result = $stmt_orders->get_result();
                         } else {
-                            // If failed, just show empty orders or error message (avoid crash)
                             echo '<div class="alert alert-warning">Could not fetch orders.</div>';
                         }
                         ?>
@@ -245,6 +243,7 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
                                                 <td><?php echo date('M d, Y', strtotime($order['created_at'])); ?></td>
                                                 <td>
                                                     <?php
+                                                    // I-color code ang status ng order
                                                     $status = $order['status'];
                                                     $badgeClass = match ($status) {
                                                         'completed', 'delivered' => 'bg-success text-success',
@@ -279,11 +278,6 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
                                 </tbody>
                             </table>
                         </div>
-                        <?php if ($orders_result->num_rows > 0): ?>
-                            <div class="mt-3 text-center">
-                                <!-- Link to full history if desired, or just keep it simple -->
-                            </div>
-                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -325,7 +319,7 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
                                     placeholder="+63 912 345 6789" disabled>
                             </div>
 
-                            <!-- Address Dissection -->
+                            <!-- Address Section (Delivery Details) -->
                             <div class="col-12">
                                 <h6 class="fw-bold text-primary mb-3"><i class="fas fa-map-marker-alt me-2"></i>Delivery
                                     Address</h6>
@@ -367,8 +361,6 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
                                     placeholder="Postal Code" disabled>
                             </div>
 
-
-
                             <!-- Street -->
                             <div class="col-12">
                                 <label class="form-label text-muted small fw-bold">Street Name, Bldg, House No.</label>
@@ -386,7 +378,5 @@ if ($stmt_addr = $conn->prepare($sql_addr)) {
 </div>
 
 </div>
-
-
 
 <?php include 'includes/footer.php'; ?>

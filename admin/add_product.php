@@ -3,26 +3,28 @@ session_start();
 include '../includes/db_connect.php';
 include '../includes/functions.php';
 
+// Verify kung admin ang naka-login. Security check.
 check_admin();
 
 $error = '';
 $success = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Sanitize inputs para iwas SQL Injection
     $name = sanitize_input($_POST['name']);
     $price = floatval($_POST['price']);
     $description = sanitize_input($_POST['description']);
 
-    // Image Upload
+    // Image Upload Handling
     if (isset($_FILES["image"]) && $_FILES["image"]["error"] == 0) {
         // Use helper function to upload to products directory
-        // Ang helper function ay nag-a-upload sa assets/uploads/, pero gusto natin sa 'products' subfolder.
+        // Ang helper function ay nag-a-upload default sa assets/uploads/, pero gusto natin sa 'products' subfolder.
         $uploadResult = uploadImage($_FILES["image"], "assets/uploads/products/");
 
         if ($uploadResult['success']) {
             $image_url = $uploadResult['path'];
 
-            // Insert product details to database (I-save ang product info)
+            // Insert product details to database (I-save ang product info kasama ang image path)
             $sql = "INSERT INTO products (name, price, image_url, description) VALUES (?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("sdss", $name, $price, $image_url, $description);
@@ -34,6 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             $stmt->close();
         } else {
+            // Kung nag-fail ang upload (e.g., maling file type)
             $error = $uploadResult['message'];
         }
     } else {
@@ -48,19 +51,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Product | Footporium Admin</title>
-    <!-- Fonts -->
+    <!-- Fonts: Gumamit ng Outfit font para consistent sa design -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap 5 -->
+    <!-- Bootstrap 5: Para sa layout at styling -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
+    <!-- Font Awesome: Para sa icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Custom Admin CSS -->
+    <!-- Custom Admin CSS: Sariling styles para sa admin panel -->
     <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 
 <body>
 
-    <!-- Sidebar -->
+    <!-- Sidebar Layout -->
     <nav class="sidebar">
         <div class="sidebar-header">
             <a href="#" class="sidebar-brand">
@@ -88,13 +91,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <main class="main-content">
         <div class="container-fluid">
 
             <div class="row justify-content-center">
                 <div class="col-lg-8">
-                    <!-- Header -->
+                    <!-- Page Header -->
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <h2 class="fw-bold mb-1">Add New Product</h2>
@@ -105,6 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </a>
                     </div>
 
+                    <!-- Form Card -->
                     <div class="card shadow-sm border-0 rounded-4">
                         <div class="card-body p-5">
                             <?php if ($error): ?>

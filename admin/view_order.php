@@ -5,6 +5,7 @@ include '../includes/functions.php';
 
 check_admin();
 
+// Check kung may order ID na pinasa
 if (!isset($_GET['id'])) {
     header("Location: orders.php");
     exit;
@@ -12,9 +13,7 @@ if (!isset($_GET['id'])) {
 
 $order_id = intval($_GET['id']);
 
-$order_id = intval($_GET['id']);
-
-// Update Status Logic: Kapag pinalitan ang status sa dropdown
+// Update Status Logic: Kapag pinalitan ang status sa dropdown at sinave
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
     $status = sanitize_input($_POST['status']);
     $stmt = $conn->prepare("UPDATE orders SET status = ? WHERE id = ?");
@@ -26,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
     }
 }
 
-// Fetch Order Details: Kunin ang detalye ng order, user, at address
+// Fetch Order Details: Kunin ang detalye ng order, user, at address (Join query)
 $sql = "SELECT o.*, u.first_name, u.last_name, u.email, u.phone, a.address_line, a.city, a.postal_code, a.country, a.province, a.barangay  
         FROM orders o
         JOIN users u ON o.user_id = u.id
@@ -82,6 +81,7 @@ $items = $stmt_items->get_result();
         <?php endif; ?>
 
         <div class="row">
+            <!-- Order Items Column -->
             <div class="col-md-8">
                 <div class="card shadow-sm mb-4">
                     <div class="card-header fw-bold">Order Items</div>
@@ -127,6 +127,7 @@ $items = $stmt_items->get_result();
                 </div>
             </div>
 
+            <!-- Customer & Status Column -->
             <div class="col-md-4">
                 <div class="card shadow-sm mb-4">
                     <div class="card-header fw-bold">Customer Details</div>

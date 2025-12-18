@@ -1,9 +1,9 @@
-// Persistent Logic (Runs once lang pag-load ng site)
+// Persistent Logic (Tumatakbo ng isang beses lang pag-load ng site, hindi paulit-ulit)
 function initPersistent() {
     console.log("Footporium Loaded - Persistent Init");
 
     // Navbar Scroll Effect (Global Listener)
-    // Change navbar color pag nag-scroll down
+    // Palitan ang kulay ng navbar kapag nag-scroll pababa (nagiging transparent/glass effect)
     window.addEventListener('scroll', function () {
         const navbar = document.querySelector('.navbar');
         if (navbar) {
@@ -15,32 +15,34 @@ function initPersistent() {
         }
     });
 
-    // Theme Toggle Logic: Logic para sa pagpapalit ng theme (Dark/Light)
+    // Theme Toggle Logic: Logic para sa pagpapalit ng theme (Dark/Light Mode)
     const body = document.documentElement;
 
     function updateIcons(theme) {
-        // Update icon based on theme (Araw kung dark mode, Buwan kung light mode)
+        // Palitan ang icon (Araw kung dark mode, Buwan kung light mode)
         document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
             icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
         });
     }
 
-    // Initialize Theme
+    // Initialize Theme (Kung ano ang huling sinet ng user, i-apply agad)
     const currentTheme = localStorage.getItem('theme');
     if (currentTheme === 'dark') {
         body.setAttribute('data-theme', 'dark');
         updateIcons('dark');
     }
 
-    // Add listeners to theme buttons (Nav is persistent)
+    // Add listeners to theme buttons (Pindutan para magpalit ng mode)
     document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             if (body.hasAttribute('data-theme')) {
+                // Switch to Light Mode
                 body.removeAttribute('data-theme');
                 localStorage.setItem('theme', 'light');
                 updateIcons('light');
             } else {
+                // Switch to Dark Mode
                 body.setAttribute('data-theme', 'dark');
                 localStorage.setItem('theme', 'dark');
                 updateIcons('dark');
@@ -48,23 +50,27 @@ function initPersistent() {
         });
     });
 
-    // Cart Page Interactions (Delegation - Body is persistent)
-    // Gamit ang delegation para gumana kahit magbago ang content ng cart
+    // Cart Page Interactions
+    // Gamit ang delegation para gumana kahit magbago ang content ng cart dynamically
     document.body.addEventListener('click', function (e) {
         if (e.target.closest('.cart-update-btn') || e.target.closest('.cart-remove-btn')) {
             const btn = e.target.closest('.btn');
             const cartItem = btn.closest('.cart-item');
             const productId = cartItem.dataset.id;
+
+            // Tukuyin kung anong action ang gagawin (remove, increase, o decrease)
             if (btn.classList.contains('cart-remove-btn')) {
                 action = 'remove';
             } else {
                 action = btn.dataset.action;
             }
 
+            // Ihanda ang data para sa request
             const formData = new FormData();
             formData.append('action', action);
             formData.append('product_id', productId);
 
+            // Fetch request sa server
             fetch('actions/update_cart_action.php', {
                 method: 'POST',
                 body: formData
@@ -72,14 +78,14 @@ function initPersistent() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        // Update Badges (Specific ID)
+                        // Success: I-update ang Cart Count Badge sa header
                         const cartBadge = document.getElementById('cart-badge');
                         if (cartBadge) {
                             cartBadge.innerText = data.cart_count;
                             cartBadge.style.display = data.cart_count > 0 ? 'block' : 'none';
                         }
 
-                        // Fallback/Redundancy for other badges if any
+                        // Siguraduhin ding updated ang ibang badges kung meron
                         const otherBadges = document.querySelectorAll('.badge.bg-danger');
                         otherBadges.forEach(b => {
                             if (b.id !== 'cart-badge') {
@@ -89,22 +95,23 @@ function initPersistent() {
                         });
 
 
-                        // Update Total
+                        // I-update ang Total Amount na nakadisplay sa page
                         const totalEl = document.getElementById('cart-total');
                         if (totalEl) totalEl.innerText = data.cart_total;
 
-                        // Update UI Item
+                        // I-update ang itsura sa cart (pag tinanggal o binawasan)
                         if (action === 'remove') {
-                            // Animation Logic
+                            // Animation: Mag-fade out effect muna bago mawala
                             cartItem.classList.add('fade-out');
 
-                            // Remove after animation
+                            // Tanggalin sa DOM pagkatapos ng animation
                             setTimeout(() => {
                                 cartItem.remove();
-                                if (data.cart_empty) location.reload();
-                            }, 500); // Matches CSS transition time
+                                if (data.cart_empty) location.reload(); // Refresh kung empty na
+                            }, 500);
 
                         } else {
+                            // Kung increase/decrease, update lang ang input value
                             const input = cartItem.querySelector('.quantity-input');
                             let currentQty = parseInt(input.value);
                             if (action === 'increase') input.value = currentQty + 1;
@@ -112,7 +119,7 @@ function initPersistent() {
                                 if (currentQty > 1) {
                                     input.value = currentQty - 1;
                                 } else {
-                                    // Same animation for decrease to 0
+                                    // Kapag binawasan hanggang 0, tanggalin na parang ni-remove
                                     cartItem.classList.add('fade-out');
                                     setTimeout(() => {
                                         cartItem.remove();
@@ -128,12 +135,12 @@ function initPersistent() {
 
 
 
-    // Audio Persistence (Robust Resume)
+    // Audio Persistence (Tuloy-tuloy na tugtog kahit lumipat ng page)
     const audio = document.getElementById("bgMusic");
     if (audio) {
         audio.volume = 0.5;
 
-        // Restore
+        // I-restore ang dating oras kung saan tumigil
         const savedTime = localStorage.getItem('bgm_time');
         const shouldPlay = localStorage.getItem('bgm_playing');
 
@@ -151,7 +158,7 @@ function initPersistent() {
         if (shouldPlay === 'true') {
             playAudio();
         } else {
-            // First visit interaction
+            // Mag-play lang kapag may interaction na (click) ang user para di autoplay violation
             const startOnce = () => {
                 playAudio();
                 document.removeEventListener('click', startOnce);
@@ -159,7 +166,7 @@ function initPersistent() {
             document.addEventListener('click', startOnce);
         }
 
-        // Save periodically (every 1s is better for "resume" accuracy)
+        // I-save ang oras kada segundo para sa "resume" functionality
         setInterval(() => {
             if (!audio.paused) {
                 localStorage.setItem('bgm_time', audio.currentTime);
@@ -167,25 +174,25 @@ function initPersistent() {
             }
         }, 1000);
 
-        // Also save on unload
+        // I-save din bago umalis sa page
         window.addEventListener('beforeunload', () => {
             localStorage.setItem('bgm_time', audio.currentTime);
         });
     }
 
-    // Initialize Barba
-    // Makes the site fast (SPA feel) without full refresh
+    // Initialize Barba.js (Para mabilis ang loading na parang Single Page App)
     if (typeof barba !== 'undefined') {
         barba.init({
             prevent: ({ el }) => {
                 const href = el.closest('a').href;
+                // Huwag gamitin ang Barba sa mga sumusunod na pages:
                 return el.classList.contains('no-barba') ||
                     href.includes('/admin/') ||
                     href.includes('logout.php') ||
-                    href.includes('my_orders.php') || // Force reload for fresh data
-                    href.includes('order_details.php') || // Force reload for fresh data
-                    href.includes('cart.php') || // Force reload for fresh data
-                    href.includes('checkout.php'); // Force reload for fresh data
+                    href.includes('my_orders.php') || // Force reload para fresh data
+                    href.includes('order_details.php') || // Force reload
+                    href.includes('cart.php') || // Force reload
+                    href.includes('checkout.php'); // Force reload
             },
             debug: true,
             transitions: [{
@@ -208,18 +215,18 @@ function initPersistent() {
         });
 
         barba.hooks.before(() => {
-            // Force Clear Barba Cache to prevent stale data (Old Cart/Orders)
+            // Linisin ang cache para hindi lumabas ang lumang data
             if (barba.cache) {
                 barba.cache.clear();
             }
         });
 
         barba.hooks.after(() => {
-            initDynamic();
-            // Scroll to top
+            initDynamic(); // I-run ulit ang dynamic scripts (tulad ng buttons)
+            // Scroll sa taas paglipat ng page
             window.scrollTo(0, 0);
 
-            // Update active nav link
+            // Update active nav link (highlight kung nasaang page ka)
             const currentPath = window.location.pathname.split('/').pop();
             document.querySelectorAll('.nav-link').forEach(link => {
                 const linkPath = link.getAttribute('href');
@@ -233,21 +240,15 @@ function initPersistent() {
     }
 }
 
-// Dynamic Logic (Runs on every page switch/transition)
+// Dynamic Logic (Tumatakbo kada lipat ng page, kailangan i-reinitialize)
 function initDynamic() {
     console.log("Footporium Page Init - Dynamic");
 
     // Scroll Animation - Optimized
     // Gamit ang IntersectionObserver para malaman kung kita na element sa screen
-    // Disconnect previous observations if any
     if (window.scrollObserver) {
         window.scrollObserver.disconnect();
     } else {
-        // Create only once if not exists (though initDynamic runs many times, we assign to window to reuse logic or just recreate efficiently)
-        // Actually, best to create in initPersistent, but if we do it here, let's just make sure we don't leak.
-        // Better pattern: Re-use the same observer instance if possible, or just disconnect old one given elements are gone.
-        // Since elements are replaced by Barba, the old nodes are garbage collected, but the observer might hold ref if not disconnected.
-
         const observerOptions = {
             threshold: 0.1
         };
@@ -262,13 +263,12 @@ function initDynamic() {
 
     document.querySelectorAll('.reveal').forEach(el => window.scrollObserver.observe(el));
 
-    // Add click event to "Add to Cart" buttons (These are re-rendered)
-    // Lagyan ng event listener ang mga Add to Cart buttons
+    // Add click event sa mga "Add to Cart" buttons
     const addButtons = document.querySelectorAll('.add-to-cart-btn');
 
     addButtons.forEach(button => {
         button.addEventListener('click', function (e) {
-            e.preventDefault(); // Prevent default submission
+            e.preventDefault(); // Huwag hayaang mag-refresh ang page
 
             const form = this.closest('form');
             if (!form) return;
@@ -276,7 +276,7 @@ function initDynamic() {
             const formData = new FormData(form);
             formData.append('ajax', '1');
 
-            // 1. Button Loading State
+            // 1. Gawing "Loading..." ang button (Feedback sa user)
             const originalText = this.innerHTML;
             this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
             this.disabled = true;
@@ -288,20 +288,19 @@ function initDynamic() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        // 2. Success Feedback
+                        // 2. Ipakita ang "Added" message
                         this.innerHTML = '<i class="fas fa-check"></i> Added';
                         this.classList.add('btn-success');
                         this.classList.remove('btn-primary-custom');
 
-                        // 3. Update Badge
-                        // Specific ID update
+                        // 3. I-update ang Cart Badge value
                         const cartBadge = document.getElementById('cart-badge');
                         if (cartBadge) {
                             cartBadge.innerText = data.cart_count;
                             cartBadge.style.display = 'block';
                         }
 
-                        // Redundancy
+                        // Redundancy check para sa ibang badges
                         const badges = document.querySelectorAll('.badge.bg-danger');
                         badges.forEach(b => {
                             if (b.id !== 'cart-badge') {
@@ -310,17 +309,18 @@ function initDynamic() {
                             }
                         });
 
-                        // 4. Fly to Cart Animation
-                        const cartIcon = document.querySelector('.fa-shopping-cart'); // Target first one
+                        // 4. "Fly to Cart" Animation (Lumalipad na image papuntang cart icon)
+                        const cartIcon = document.querySelector('.fa-shopping-cart'); // Targetin ang cart icon
                         if (cartIcon) {
-                            const productCard = this.closest('.product-card') || this.closest('.col-md-6'); // Support detail page too
+                            const productCard = this.closest('.product-card') || this.closest('.col-md-6');
                             const productImg = productCard ? productCard.querySelector('img') : null;
 
                             if (productImg) {
-                                const imgClone = productImg.cloneNode(true);
+                                const imgClone = productImg.cloneNode(true); // Kopyahin ang image
                                 const imgRect = productImg.getBoundingClientRect();
                                 const cartRect = cartIcon.getBoundingClientRect();
 
+                                // Set initial position (kung nasaan ang original image)
                                 imgClone.style.position = 'fixed';
                                 imgClone.style.top = imgRect.top + 'px';
                                 imgClone.style.left = imgRect.left + 'px';
@@ -334,6 +334,7 @@ function initDynamic() {
 
                                 document.body.appendChild(imgClone);
 
+                                // Simulan ang animation papunta sa cart
                                 setTimeout(() => {
                                     imgClone.style.top = cartRect.top + 'px';
                                     imgClone.style.left = cartRect.left + 'px';
@@ -346,7 +347,7 @@ function initDynamic() {
                             }
                         }
 
-                        // SweetAlert Toast
+                        // Ipakita ang Toast message (SweetAlert notification sa gilid)
                         if (typeof Swal !== 'undefined') {
                             const Toast = Swal.mixin({
                                 toast: true,
@@ -362,7 +363,7 @@ function initDynamic() {
                             });
                         }
 
-                        // Reset Button
+                        // Ibalik ang button sa dati pagkatapos ng ilang segundo
                         setTimeout(() => {
                             this.innerHTML = originalText;
                             this.classList.remove('btn-success');
@@ -379,7 +380,8 @@ function initDynamic() {
                 });
         });
     });
-    // Product Details Quantity Logic
+
+    // Product Details Quantity Logic (Plus/Minus buttons functionality)
     const qtyInput = document.getElementById('quantity');
     const qtyMinus = document.querySelector('.qty-decrease');
     const qtyPlus = document.querySelector('.qty-increase');
@@ -394,7 +396,8 @@ function initDynamic() {
             qtyInput.value = val + 1;
         });
     }
-    // Checkout Form Handler
+
+    // Checkout Form Handler: Pagpindot ng "Place Order"
     const checkoutForm = document.getElementById('checkoutForm');
     if (checkoutForm) {
         checkoutForm.addEventListener('submit', function (e) {
@@ -404,7 +407,7 @@ function initDynamic() {
             const btn = this.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
 
-            // Loading State
+            // Loading State (Ipakita na nagpoproseso)
             btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
             btn.disabled = true;
 
@@ -425,7 +428,7 @@ function initDynamic() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        // Success Redirect
+                        // Success Redirect: Papunta sa success page
                         Swal.fire({
                             icon: 'success',
                             title: 'Order Placed!',
@@ -436,7 +439,7 @@ function initDynamic() {
                             window.location.href = 'success.php?order_id=' + data.order_id;
                         });
                     } else {
-                        // Error
+                        // Error handling
                         Swal.fire({
                             icon: 'error',
                             title: 'Oops...',
@@ -471,7 +474,7 @@ function initDynamic() {
             e.preventDefault();
 
             if (!isEditing) {
-                // Switch to Edit Mode
+                // Switch to Edit Mode (Pwede na mag-type at mag-edit)
                 isEditing = true;
                 inputs.forEach(input => input.disabled = false);
                 if (editFlag) editFlag.disabled = false;
@@ -482,7 +485,7 @@ function initDynamic() {
 
                 if (inputs.length > 0) inputs[0].focus();
             } else {
-                // Save Changes
+                // Save Changes (Submit form kapag nasa edit mode na)
                 inputs.forEach(input => input.disabled = false);
                 if (editFlag) editFlag.disabled = false;
                 form.submit();
@@ -491,13 +494,13 @@ function initDynamic() {
     }
 }
 
-// Master Init
+// Master Init (Simulan ang lahat pag-load ng website)
 document.addEventListener('DOMContentLoaded', function () {
     initPersistent();
     initDynamic();
 });
 
-// Password Toggle Logic (Global for Barba)
+// Password Toggle Logic (Global para gumana kahit mag-Barba transition, para sa mata icon)
 window.togglePassword = function (inputId, btn) {
     const input = document.getElementById(inputId);
     const icon = btn.querySelector('i');

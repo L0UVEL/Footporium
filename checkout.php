@@ -10,7 +10,7 @@ check_login();
 
 // Redirect sa cart page kapag walang laman ang cart o empty ang session
 if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
-    // Walang items, balik sa cart
+    // Walang items, balik sa cart page
     header("Location: cart.php");
     exit;
 }
@@ -19,7 +19,7 @@ $user_id = $_SESSION['user_id'];
 $error = '';
 $success = '';
 
-// I-calculate ang Total na babayaran base sa laman ng cart (Re-verify price from DB)
+// I-calculate ang Total na babayaran base sa laman ng cart (Re-verify price mula sa DB para sure)
 $ids = implode(',', array_keys($_SESSION['cart']));
 $sql_cart = "SELECT * FROM products WHERE id IN ($ids)";
 $result_cart = $conn->query($sql_cart);
@@ -27,18 +27,18 @@ $cart_items = [];
 $total_price = 0;
 if ($result_cart) {
     while ($row = $result_cart->fetch_assoc()) {
-        // I-set ang quantity mula sa session
+        // I-set ang quantity mula sa session cart
         $row['qty'] = $_SESSION['cart'][$row['id']];
-        // Compute subtotal
+        // Compute subtotal (Presyo x Quantity)
         $row['subtotal'] = $row['price'] * $row['qty'];
-        // Update total
+        // I-update ang grand total
         $total_price += $row['subtotal'];
         $cart_items[] = $row;
     }
 }
 
 // Logic moved to actions/place_order_action.php for AJAX handling
-// (Ang logic ng pag-place ng order ay nasa ibang file na para malinis at secure via AJAX)
+// (Ang logic ng pag-place ng order ay inilipat sa 'actions' folder para malinis at secure gamit ang AJAX)
 
 // Kunin ang Address ng User para i-fill sa form (Pre-fill) para di na mag-type si user kung may record na
 $sql_addr_fetch = "SELECT * FROM addresses WHERE user_id = ? LIMIT 1";
@@ -60,6 +60,7 @@ $stmt->close();
             <?php endif; ?>
 
             <form action="checkout.php" method="post" id="checkoutForm">
+                <!-- Shipping Address Section -->
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-header py-3">
                         <h5 class="mb-0 fw-bold"><i class="fas fa-map-marker-alt text-primary me-2"></i> Shipping
@@ -102,6 +103,7 @@ $stmt->close();
                     </div>
                 </div>
 
+                <!-- Payment Method Section -->
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-header py-3">
                         <h5 class="mb-0 fw-bold"><i class="fas fa-credit-card text-primary me-2"></i> Payment Method
@@ -139,6 +141,7 @@ $stmt->close();
             </form>
         </div>
 
+        <!-- Order Summary Side Panel -->
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-header py-3">

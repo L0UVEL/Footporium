@@ -1,24 +1,25 @@
 <?php
-// Function to clean input data to prevent SQL injection and XSS
-// Lilinisin nito yung input para safe sa database
+// Function para linisin ang input data at iwasan ang SQL injection o hacking
+// Importante ito para safe ang data na papasok sa database at hindi makasira ng system
 function sanitize_input($data)
 {
-    $data = trim($data); // Remove extra spaces
-    $data = stripslashes($data); // Remove backslashes
-    $data = htmlspecialchars($data); // Convert special chars to HTML entities
+    $data = trim($data); // Tanggalin ang mga extra space sa simula at dulo
+    $data = stripslashes($data); // Tanggalin ang mga backslash (\) na pwedeng mag-cause ng error
+    $data = htmlspecialchars($data); // Gawing HTML entities ang mga special characters (<, >, &)
     return $data;
 }
 
-// Helper para makapag-redirect sa ibang page
-// Stops script execution after redirect (Huminto agad pagkatapos lumipat)
+// Helper function para ilipat (redirect) ang user sa ibang page
+// Huminto agad ang script pagkatapos mag-redirect `exit()` para sure
 function redirect($url)
 {
     header("Location: $url");
     exit();
 }
 
-// Check kung naka-login si user
-// If hindi, redirect sa login page
+// Check kung naka-login ang user
+// Kung hindi pa naka-login, ilipat sila sa login page
+// Ginagamit ito sa mga pages na pang-members lang
 function check_login()
 {
     if (!isset($_SESSION['user_id'])) {
@@ -27,63 +28,67 @@ function check_login()
 }
 
 // Check kung admin ang user
-// If hindi admin, ibabalik sa homepage (Security measure)
+// Kung hindi admin, ibalik sila sa homepage (Security measure ito)
+// Para hindi ma-access ng regular user ang admin panel
 function check_admin()
 {
     if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
         redirect('../index.php');
     }
 }
-// Helper to upload images: Function para sa pag-upload ng pictures
-// Helper to upload images: Function para sa pag-upload ng pictures
+
+// Helper function para sa pag-upload ng pictures (Profile pic, Products)
 function uploadImage($file, $targetDir = "assets/uploads/")
 {
-    // Define allowed file types
+    // Tukuyin kung anong klase ng files ang pwede (Allowed types only)
     $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
-    // Get file extension
+    // Kunin ang pangalan at extension ng file (halimbawa: .jpg, .png)
     $fileName = basename($file['name']);
     $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-    // Validate type
+    // Check kung tama ang file type (kung nasa allowed list)
     if (!in_array($fileType, $allowedTypes)) {
         return ['success' => false, 'message' => 'Invalid file type. Only JPG, PNG, GIF, and WEBP are allowed.'];
     }
 
-    // Validate size (e.g., max 10MB to accommodate mobile photos)
+    // Check ang file size (Limitado lang sa 10MB para kaya ang mobile photos pero di masyadong mabigat)
     if ($file['size'] > 10000000) {
         return ['success' => false, 'message' => 'File is too large. Max 10MB allowed.'];
     }
 
-    // Generate unique filename to avoid overwrites
+    // Gumawa ng unique na filename para hindi magkapalit-palit ang mga pictures kung pareho ng pangalan
+    // uniqid() generates a unique ID based on current time
     $newFileName = uniqid() . '.' . $fileType;
 
-    // Ensure separate paths are clean
+    // Siguraduhing malinis ang path ng folder (may slash sa dulo)
     $targetDir = rtrim($targetDir, '/') . '/';
     $targetPath = $targetDir . $newFileName;
 
-    // Resolve absolute path
+    // Ayusin ang full path (Absolute path) para sa server (C:/xampp/htdocs/...)
+    // Ito ay mahalaga para gumana nang tama ang `move_uploaded_file` permissions
     $rootPath = dirname(__DIR__);
     $absoluteTargetDir = $rootPath . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $targetDir);
     $absoluteTargetFile = $rootPath . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $targetPath);
 
-    // Create directory if it doesn't exist
+    // Gumawa ng folder kung wala pa ito
     if (!is_dir($absoluteTargetDir)) {
+        // Subukang gumawa ng directory na may full permissions (0777) para makapagsulat
         if (!mkdir($absoluteTargetDir, 0777, true)) {
             return ['success' => false, 'message' => 'Failed to create upload directory: ' . $targetDir];
         }
     }
 
-    // Check if writable
+    // Check kung pwede sulatan ang folder (Writable permission)
     if (!is_writable($absoluteTargetDir)) {
         return ['success' => false, 'message' => 'Directory not writable. Please CHMOD 777: ' . $targetDir];
     }
 
-    // Try to upload
+    // Subukang i-move ang uploaded file mula sa temp folder papunta sa tamang folder
     if (move_uploaded_file($file['tmp_name'], $absoluteTargetFile)) {
         return ['success' => true, 'path' => $targetPath];
     } else {
-        // Debug info included in message (safe for now as it's local/dev)
+        // Mag-balik ng error kung nabigo ang pag-move
         return ['success' => false, 'message' => 'Failed to move uploaded file. Check folder permissions for: ' . $targetDir];
     }
 }

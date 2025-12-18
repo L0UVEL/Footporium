@@ -5,9 +5,7 @@ include '../includes/functions.php';
 
 check_admin();
 
-check_admin();
-
-// Fetch Current Admin User (for sidebar/header): Kunin ang admin info para sa UI
+// Fetch Current Admin User (for sidebar/header): Kunin ang admin info para sa UI display
 $admin_id = $_SESSION['user_id'];
 $sql_user = "SELECT first_name, last_name, profile_image FROM users WHERE id = ?";
 $stmt_user = $conn->prepare($sql_user);
@@ -16,9 +14,7 @@ $stmt_user->execute();
 $current_user = $stmt_user->get_result()->fetch_assoc();
 $stmt_user->close();
 
-$stmt_user->close();
-
-// Fetch Orders: Kunin lahat ng orders kasama ang user info
+// Fetch Orders: Kunin lahat ng orders kasama ang user info (Join query)
 $sql = "SELECT o.*, u.first_name, u.last_name, u.email 
         FROM orders o 
         JOIN users u ON o.user_id = u.id 
@@ -44,7 +40,7 @@ $result = $conn->query($sql);
 
 <body>
 
-    <!-- Sidebar -->
+    <!-- Sidebar Navigation -->
     <nav class="sidebar">
         <div class="sidebar-header">
             <a href="#" class="sidebar-brand">
@@ -72,7 +68,7 @@ $result = $conn->query($sql);
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <main class="main-content">
         <div class="container-fluid">
 
@@ -82,6 +78,7 @@ $result = $conn->query($sql);
                     <h2 class="fw-bold mb-1">Order Management</h2>
                     <p class="text-muted">View and manage customer orders.</p>
                 </div>
+                <!-- Admin Profile/Notifications -->
                 <div class="d-flex align-items-center gap-3">
                     <div class="bg-white p-2 rounded shadow-sm">
                         <i class="fas fa-bell text-muted"></i>
@@ -131,6 +128,7 @@ $result = $conn->query($sql);
                                         <td>
                                             <?php
                                             $status = $row['status'];
+                                            // Dynamic badge colors para sa status
                                             $badgeClass = match ($status) {
                                                 'completed', 'delivered' => 'bg-success text-success',
                                                 'shipped' => 'bg-info text-info',

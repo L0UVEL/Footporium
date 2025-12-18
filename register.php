@@ -2,10 +2,12 @@
 include 'includes/db_connect.php';
 include 'includes/functions.php';
 
+// Simulan ang session kung wala pa
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Kung naka-login na, bawal na mag-register ulit (redirect sa home)
 if (isset($_SESSION['user_id'])) {
     redirect('index.php');
 }
@@ -13,15 +15,16 @@ if (isset($_SESSION['user_id'])) {
 $error = '';
 $success = '';
 
+// Kapag nag-submit ng registration form
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sanitize inputs
+    // Linisin ang inputs (Sanitize)
     $first_name = sanitize_input($_POST['firstName']);
     $last_name = sanitize_input($_POST['lastName']);
     $email = sanitize_input($_POST['email']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirmPassword'];
 
-    // Password Validation: Check kung pasok sa security requirements
+    // Password Validation: Siguraduhin na secure ang password
     $error = "Password must be at least 8 characters long.";
     if (strlen($password) < 8) {
         $error = "Password must be at least 8 characters long.";
@@ -36,9 +39,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif ($password !== $confirm_password) {
         $error = "Passwords do not match.";
     } else {
-        $error = ''; // Clear error if all validations pass (logic fix from original)
+        $error = ''; // Clear error kung okay lahat ng validation
 
-        // Check if email exists (Kung registered na ang email sa database)
+        // Check kung registered na ang email sa database
         $check_sql = "SELECT id FROM users WHERE email = ?";
         $check_stmt = $conn->prepare($check_sql);
         $check_stmt->bind_param("s", $email);
@@ -50,11 +53,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else if (!$check_result) {
             $error = "Database Error: " . $conn->error;
         } else {
-            // Hash password bago i-save para secure
+            // Hash ang password bago i-save para secure (naka-encrypt)
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $role = 'user'; // Default role
+            $role = 'user'; // Default role ay ordinary user
 
-            // Insert new user to database
+            // I-insert ang bagong user sa database
             $sql = "INSERT INTO users (first_name, last_name, email, password, role) VALUES (?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("sssss", $first_name, $last_name, $email, $hashed_password, $role);
@@ -106,8 +109,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}"
                                     title="Must contain at least one number, one uppercase and lowercase letter, one special character, and at least 8 or more characters"
                                     required>
+                                <!-- Toggle Password Button (Eye) -->
                                 <button class="btn btn-outline-secondary" type="button"
-                                    onclick="togglePassword('password', this)">
+                                    style="cursor: pointer; z-index: 100;" onclick="togglePassword('password', this)"
+                                    onmousedown="event.preventDefault();">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -121,7 +126,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
                                     minlength="8" required>
                                 <button class="btn btn-outline-secondary" type="button"
-                                    onclick="togglePassword('confirmPassword', this)">
+                                    style="cursor: pointer; z-index: 100;"
+                                    onclick="togglePassword('confirmPassword', this)"
+                                    onmousedown="event.preventDefault();">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -135,6 +142,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
 </div>
-
 
 <?php include 'includes/footer.php'; ?>

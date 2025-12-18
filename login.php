@@ -2,48 +2,54 @@
 include 'includes/db_connect.php';
 include 'includes/functions.php';
 
+// Check kung wala pang session na nag-start, then simulan ito
 if (session_status() === PHP_SESSION_NONE) {
-    // Simulan ang session para magamit ang global $_SESSION variable
     session_start();
 }
 
+// Kung naka-login na ang user, idirekta agad sila sa homepage
 if (isset($_SESSION['user_id'])) {
-    // Kung naka-login na ang user, redirect agad sa homepage
     redirect('index.php');
 }
 
 $error = '';
 
+// Kapag nag-submit ang user ng login form (POST request)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sanitize input para iwas SQL injection
+    // Linisin ang input para iwas sa hacking (Sanitize)
     $email = sanitize_input($_POST['email']);
     $password = $_POST['password'];
 
-    // Query para hanapin ang user gamit ang email
+    // Hanapin ang user sa database gamit ang email
     $sql = "SELECT id, first_name, last_name, password, role FROM users WHERE email = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
 
+    // Kung may nahanap na user
     if ($result && $result->num_rows == 1) {
         $row = $result->fetch_assoc();
-        // I-verify kung tama ang password gamit ang password_verify (dahil naka-hash ito)
+
+        // I-verify kung tama ang password (compare sa naka-hash sa database)
         if (password_verify($password, $row['password'])) {
-            // Set session variables pagkatapos ng successful login
+            // Login successful! I-save ang user info sa session
             $_SESSION['user_id'] = $row['id'];
             $_SESSION['user_name'] = $row['first_name'] . ' ' . $row['last_name'];
             $_SESSION['role'] = $row['role'];
 
+            // Kung admin, sa admin dashboard; kung user, sa homepage
             if ($row['role'] == 'admin') {
                 redirect('admin/dashboard.php');
             } else {
                 redirect('index.php');
             }
         } else {
+            // Mali ang password
             $error = "Invalid password.";
         }
     } else {
+        // Walang user na may ganitong email
         if (!$result) {
             $error = "Database Error: " . $conn->error;
         } else {
@@ -73,8 +79,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <label for="password" class="form-label">Password</label>
                             <div class="input-group">
                                 <input type="password" class="form-control" id="password" name="password" required>
+                                <!-- Toggle Password Button (Eye Icon) -->
                                 <button class="btn btn-outline-secondary" type="button"
-                                    onclick="togglePassword('password', this)">
+                                    style="cursor: pointer; z-index: 100;" onclick="togglePassword('password', this)"
+                                    onmousedown="event.preventDefault();"> <!-- Prevent focus loss sa mobile -->
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -88,6 +96,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
 </div>
-
 
 <?php include 'includes/footer.php'; ?>

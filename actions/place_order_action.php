@@ -1,11 +1,11 @@
 <?php
-// Turn off error reporting for output, log it instead
+// Turn off error reporting sa output para hindi masira ang JSON format, i-log na lang sa file
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
 ini_set('log_errors', 1);
-ini_set('error_log', '../php_errors.log'); // Log to project root
+ini_set('error_log', '../php_errors.log'); // Log errors to root directory
 
-// Start buffering to catch unwanted output (Para malinis ang JSON response)
+// Start buffering para mahuli ang unwanted output at hindi masira ang JSON response
 ob_start();
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -18,10 +18,12 @@ try {
     include '../includes/db_connect.php';
     include '../includes/functions.php';
 
+    // Verify kung naka-login
     if (!isset($_SESSION['user_id'])) {
         throw new Exception('User not logged in');
     }
 
+    // Verify kung may laman ang cart
     if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
         throw new Exception('Cart is empty');
     }
@@ -32,7 +34,7 @@ try {
     // Debug Log
     error_log("Checkout initiated for User ID: $user_id");
 
-    // Calculate Total: Compute muna ang total price ulit from DB para secure
+    // Calculate Total: Compute muna ang total price ulit mula sa DB para secure at hindi madaya
     $ids = implode(',', array_keys($cart));
     if (empty($ids))
         throw new Exception('Invalid cart data');
@@ -63,7 +65,7 @@ try {
 
         error_log("Input received. Processing address...");
 
-        // 1. Address Logic: Check kung may address na, kung meron UPDATE, kung wala INSERT
+        // 1. Address Logic: Check kung may address na ang user. Kung meron UPDATE, kung wala INSERT.
         $check_addr = "SELECT id FROM addresses WHERE user_id = ?";
         $stmt = $conn->prepare($check_addr);
         $stmt->bind_param("i", $user_id);
@@ -71,6 +73,7 @@ try {
         $res = $stmt->get_result();
 
         if ($res->num_rows > 0) {
+            // Update existing address
             $addr_row = $res->fetch_assoc();
             $address_id = $addr_row['id'];
             $sql_addr = "UPDATE addresses SET address_line = ?, country=?, province=?, city=?, barangay=?, postal_code = ? WHERE id = ?";
@@ -79,6 +82,7 @@ try {
             $stmt_addr->execute();
             $stmt_addr->close();
         } else {
+            // Insert new address
             $sql_addr = "INSERT INTO addresses (user_id, address_line, country, province, city, barangay, postal_code) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt_addr = $conn->prepare($sql_addr);
             $stmt_addr->bind_param("issssss", $user_id, $address_line, $country, $province, $city, $barangay, $postal_code);
@@ -91,7 +95,6 @@ try {
 
         // 2. Create Order: I-save ang order record sa database
         $order_status = 'pending';
-        // Check if orders table exists first? Let's assume yes or catch error.
         $sql_order = "INSERT INTO orders (user_id, address_id, total_amount, status) VALUES (?, ?, ?, ?)";
         $stmt_order = $conn->prepare($sql_order);
         if (!$stmt_order)
@@ -103,7 +106,7 @@ try {
             $order_id = $stmt_order->insert_id;
             error_log("Order created (ID: $order_id). Adding items...");
 
-            // 3. Order Items: Isa-isahin ang cart items at i-save sa order_items table
+            // 3. Order Items: Isa-isahin ang mga items sa cart at i-save sa 'order_items' table
             $sql_item = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
             $stmt_item = $conn->prepare($sql_item);
 
@@ -113,10 +116,10 @@ try {
             }
             $stmt_item->close();
 
-            // 4. Payment: I-record ang payment method (Pending muna status)
+            // 4. Payment: I-record ang payment method (Status: Pending muna)
             error_log("Recording payment...");
             $payment_status = 'pending';
-            // Check if payments table exists
+            // Check kung nag-exist ang payments table
             $check_table = $conn->query("SHOW TABLES LIKE 'payments'");
             if ($check_table && $check_table->num_rows > 0) {
                 $sql_pay = "INSERT INTO payments (order_id, payment_method, amount, status) VALUES (?, ?, ?, ?)";
@@ -129,10 +132,10 @@ try {
                 error_log("Warning: 'payments' table missing. Skipping payment record.");
             }
 
-            // 5. Clear Cart: Empty na ang session cart pagtapos mag-order
+            // 5. Clear Cart: Empty na ang session cart dahil successful na ang order
             unset($_SESSION['cart']);
 
-            // CLEAR BUFFER before JSON: Siguraduhing walang extra characters bago ang JSON
+            // CLEAR BUFFER before JSON: Siguraduhing malinis ang output bago i-echo ang JSON
             ob_clean();
             echo json_encode(['status' => 'success', 'order_id' => $order_id]);
         } else {

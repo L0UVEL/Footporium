@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Calculate total cart items for the badge
 $cart_count = 0;
 // Check kung may laman ang cart sa session, tapos bilangin ang total items
 if (isset($_SESSION['cart'])) {
@@ -15,10 +16,12 @@ if (isset($_SESSION['cart'])) {
 $user_header_img = '';
 
 // Optimization: Cache header image in session to avoid fetching BLOB on every page load
+// Para hindi bumagal ang loading kada lipat ng page
 if (isset($_SESSION['user_id'])) {
     if (isset($_SESSION['user_header_img'])) {
         $user_header_img = $_SESSION['user_header_img'];
     } elseif (isset($conn)) {
+        // Kung wala sa cache, kunin sa database
         $hid = $_SESSION['user_id'];
         $hsql = "SELECT profile_image FROM users WHERE id = ?";
         if ($header_stmt = $conn->prepare($hsql)) {
@@ -29,15 +32,12 @@ if (isset($_SESSION['user_id'])) {
                 if ($h_row['profile_image']) {
                     $imgSrc = htmlspecialchars($h_row['profile_image']);
                     $user_header_img = '<img src="' . $imgSrc . '" class="rounded-circle" width="30" height="30" style="object-fit:cover; margin-right:5px;">';
-                    $_SESSION['user_header_img'] = $user_header_img; // Cache it (I-save sa session para mabilis)
+                    $_SESSION['user_header_img'] = $user_header_img; // Cache it (I-save sa session para mabilis sa susunod)
                 }
             }
             $header_stmt->close();
         }
     }
-}
-if (!$user_header_img) {
-    // Fallback or just icon
 }
 ?>
 <!DOCTYPE html>
@@ -73,13 +73,13 @@ if (!$user_header_img) {
     <meta name="twitter:image"
         content="<?php echo isset($og_image) ? $og_image : 'http://' . $_SERVER['HTTP_HOST'] . '/assets/img/adolfJackson.png'; ?>">
 
-    <!-- Favicon -->
+    <!-- Favicon: Icon na makikita sa browser tab -->
     <?php
     $path_prefix = (strpos($_SERVER['PHP_SELF'], '/admin/') !== false) ? '../' : '';
     ?>
     <link rel="icon" type="image/png" href="<?php echo $path_prefix; ?>assets/img/adolfJackson.png">
 
-    <!-- JSON-LD Structured Data -->
+    <!-- JSON-LD Structured Data: Para sa SEO ng Google -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -91,19 +91,19 @@ if (!$user_header_img) {
     </script>
     <?php if (isset($product)): ?>
         <script type="application/ld+json">
-                                                {
-                                                  "@context": "https://schema.org",
-                                                  "@type": "Product",
-                                                  "name": "<?php echo htmlspecialchars($product['name']); ?>",
-                                                  "image": "<?php echo isset($og_image) ? $og_image : ''; ?>",
-                                                  "description": "<?php echo htmlspecialchars(json_encode($product['description']), ENT_QUOTES, 'UTF-8'); ?>",
-                                                  "offers": {
-                                                    "@type": "Offer",
-                                                    "priceCurrency": "PHP",
-                                                    "price": "<?php echo $product['price']; ?>"
-                                                  }
-                                                }
-                                                </script>
+            {
+              "@context": "https://schema.org",
+              "@type": "Product",
+              "name": "<?php echo htmlspecialchars($product['name']); ?>",
+              "image": "<?php echo isset($og_image) ? $og_image : ''; ?>",
+              "description": "<?php echo htmlspecialchars(json_encode($product['description']), ENT_QUOTES, 'UTF-8'); ?>",
+              "offers": {
+                "@type": "Offer",
+                "priceCurrency": "PHP",
+                "price": "<?php echo $product['price']; ?>"
+              }
+            }
+            </script>
     <?php endif; ?>
 
     <!-- Bootstrap CSS -->
@@ -114,7 +114,7 @@ if (!$user_header_img) {
     <link rel="stylesheet" href="assets/vendor/fontawesome/css/all.min.css">
     <!-- SweetAlert2 -->
     <script src="assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
-    <!-- Theme Init -->
+    <!-- Theme Init: I-check kung naka dark mode ang user dati -->
     <script>
         (function () {
             const savedTheme = localStorage.getItem('theme');
@@ -131,25 +131,24 @@ if (!$user_header_img) {
     <audio id="bgMusic" loop>
         <source src="<?php echo $path_prefix; ?>assets/audio/bgm.mp3" type="audio/mpeg">
     </audio>
-    <!-- Audio Script moved to script.js for better persistence -->
 
-
-    <!-- Navigation -->
+    <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
+            <!-- Brand Logo -->
             <a class="navbar-brand" href="index.php">
                 <i class="fas fa-shoe-prints me-2"></i>Footporium
             </a>
 
-            <!-- Mobile/Desktop Actions (Visible Always) -->
+            <!-- Mobile/Desktop Actions: Icons na laging nakikita (Cart, User, Theme Toggle) -->
             <!-- order-lg-last ensures it stays on the right on desktop -->
             <div class="d-flex align-items-center ms-auto order-lg-last gap-3">
-                <!-- Theme Toggle -->
+                <!-- Theme Toggle Button -->
                 <button class="btn btn-link nav-link theme-toggle-btn p-0 border-0" style="font-size: 1.2rem;">
                     <i class="fas fa-moon"></i>
                 </button>
 
-                <!-- Cart Pill -->
+                <!-- Cart Icon with Badge -->
                 <a class="nav-link btn btn-light rounded-pill px-3 position-relative d-flex align-items-center gap-2"
                     href="cart.php">
                     <i class="fas fa-shopping-cart text-primary"></i>
@@ -161,7 +160,7 @@ if (!$user_header_img) {
                     </span>
                 </a>
 
-                <!-- User Profile / Login -->
+                <!-- User Profile Dropdown / Login Button -->
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <div class="dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center text-dark p-0" href="#" role="button"
@@ -183,27 +182,25 @@ if (!$user_header_img) {
                         </ul>
                     </div>
                 <?php else: ?>
+                    <!-- Login Button for Guest -->
                     <a href="login.php"
                         class="btn btn-primary-custom btn-sm rounded-pill px-3 py-2 d-none d-sm-block">Login</a>
                     <a href="login.php" class="text-dark fs-4 d-sm-none"><i class="fas fa-sign-in-alt"></i></a>
                 <?php endif; ?>
 
-                <!-- Mobile Toggler (Using ms-2 to separate from icons) -->
+                <!-- Mobile Menu Toggler (Hamburger Icon) -->
                 <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarContent">
                     <span class="navbar-toggler-icon"></span>
                 </button>
             </div>
 
-            <!-- Collapsible Content (Links) -->
+            <!-- Collapsible Links (Home, Products, About) -->
             <div class="collapse navbar-collapse" id="navbarContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="products.php">Products</a></li>
                     <li class="nav-item"><a class="nav-link" href="about.php">About</a></li>
-
-                    <!-- Mobile Only Login/Register Links (If user wants them in menu too, but top button is better) -->
-                    <!-- Removed duplicate login links to keep menu clean, user has button on top right -->
                 </ul>
             </div>
         </div>

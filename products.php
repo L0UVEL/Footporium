@@ -15,19 +15,21 @@ include 'includes/header.php';
 <div class="container mb-5 reveal">
     <div class="row g-4">
         <?php
-        // Kunin lahat ng products sa database
+        // Kunin lahat ng products mula sa database
         $sql = "SELECT * FROM products";
         $result = $conn->query($sql);
 
         if ($result && $result->num_rows > 0) {
-            // I-loop ang bawat product para ipakita sa grid
+            // I-loop ang bawat product para ipakita sila isa-isa sa grid
             while ($row = $result->fetch_assoc()) {
                 ?>
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                     <div class="product-card">
                         <div class="product-img-wrapper">
+                            <!-- Link papunta sa product details page -->
                             <a href="product_details.php?id=<?php echo $row['id']; ?>">
                                 <?php
+                                // Check kung may image, kung wala, gumamit ng placeholder
                                 $imgSrc = !empty($row['image_url']) ? $row['image_url'] : 'assets/img/placeholder.png';
                                 ?>
                                 <img src="<?php echo htmlspecialchars($imgSrc); ?>"
@@ -41,7 +43,10 @@ include 'includes/header.php';
                                     <?php echo htmlspecialchars($row["name"]); ?>
                                 </a>
                             </h5>
+                            <!-- Presyo ng product -->
                             <span class="price">₱<?php echo number_format($row["price"], 2); ?></span>
+
+                            <!-- Add to Cart button (nakadepende kung naka-login o hindi) -->
                             <?php if (isset($_SESSION['user_id'])): ?>
                                 <form action="actions/add_to_cart_action.php" method="POST" class="d-grid mt-2">
                                     <input type="hidden" name="product_id" value="<?php echo $row['id']; ?>">
@@ -57,6 +62,7 @@ include 'includes/header.php';
                 <?php
             }
         } else {
+            // Kung may error sa pag-query o walang nakuha
             if (!$result) {
                 echo "<div class='col-12 text-center text-danger'>Database Error: " . $conn->error . "<br>Did you import the SQL file?</div>";
             } else {
@@ -64,6 +70,7 @@ include 'includes/header.php';
                 echo "<p class='text-center'>No products found.</p>";
             }
         }
+        // Isara ang connection sa database
         $conn->close();
         ?>
     </div>

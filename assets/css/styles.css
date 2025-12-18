@@ -1,4 +1,4 @@
-/* Google Fonts */
+/* Google Fonts: Outfit font para sa modern look */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap');
 
 :root {
@@ -9,34 +9,35 @@
     --text-dark: #212529;
     /* Black text for readability */
     --text-muted: #6c757d;
-    /* Muted na kulay para sa secondary text */
+    /* Muted na kulay para sa secondary text (konting gray) */
     --bg-light: #f4f6f8;
-    /* Light gray na background ng body */
+    /* Light gray na background ng body (hindi sobrang puti para hindi masakit sa mata) */
     --bg-card: #ffffff;
 
     --bg-navbar: #ffffff;
     --bg-navbar-scrolled: rgba(255, 255, 255, 0.95);
     --bg-glass: rgba(255, 255, 255, 0.7);
-    /* Light glass */
+    /* Light glass effect */
     --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     --card-hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     --border-color: #eee;
 
-    /* Forms */
+    /* Forms: Inputs styling */
     --bg-input: #ffffff;
     --border-input: #e0e0e0;
 }
 
+/* Dark Mode Configuration */
 [data-theme="dark"] {
     /* Dark Mode Overrides (Para sa Dark Mode switch) */
     --primary-color: #FF5252;
     --primary-hover: #FF867C;
     --secondary-color: #1a1a1a;
     --text-dark: #f0f0f0;
-    /* White */
+    /* White text */
     --text-muted: #b0b0b0;
     --bg-light: #121212;
-    /* Dark body */
+    /* Dark background */
     --bg-card: #1e1e1e;
     --bg-navbar: #1e1e1e;
     --bg-navbar-scrolled: rgba(30, 30, 30, 0.95);
@@ -46,12 +47,12 @@
     --card-hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
     --border-color: #333;
 
-    /* Forms */
+    /* Dark mode inputs */
     --bg-input: #2b2b2b;
     --border-input: #444;
 }
 
-/* Pilitin ang Bootstrap text utilities na gamitin ang variables natin */
+/* Override Bootstrap Defaults: Pilitin ang Bootstrap text utilities na gamitin ang variables natin */
 .text-dark,
 .text-body {
     color: var(--text-dark) !important;
@@ -72,14 +73,13 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* Navbar Customization */
-/* Eto yung styling ng navigation bar sa taas */
+/* Navbar: Navigation bar styling */
 .navbar {
     background-color: var(--bg-navbar);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     padding: 1rem 0;
     transition: all 0.3s ease;
-    /* Smooth transition pag nagpalit ng state */
+    /* Smooth transition pag nagpalit ng kulay/state */
 }
 
 .navbar.scrolled {
@@ -108,7 +108,7 @@ body {
     color: var(--primary-color) !important;
 }
 
-/* Navbar Dropdown Customization (Yung lalabas kapag clinic yung user/menu) */
+/* Dropdown Menu: Yung lalabas kapag clinic yung user/menu */
 .dropdown-menu {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -123,7 +123,7 @@ body {
 .dropdown-item:hover,
 .dropdown-item:focus {
     background-color: rgba(128, 0, 0, 0.1);
-    /* Subtle primary tint */
+    /* Subtle primary tint background */
     color: var(--primary-color);
 }
 
@@ -131,7 +131,7 @@ body {
     border-top-color: var(--border-color);
 }
 
-/* Explicit na Dark Mode Overrides para sa Dropdowns */
+/* Dark Mode Fixes for Dropdowns */
 [data-theme="dark"] .dropdown-menu {
     background-color: var(--bg-card) !important;
     border-color: var(--border-color);
@@ -148,7 +148,7 @@ body {
     color: var(--primary-color);
 }
 
-/* Hero Section (if used) */
+/* Hero Section: Main banner area (if used) */
 .hero-section {
     background: linear-gradient(135deg, #fff0f0 0%, #ffffff 100%);
     padding: 80px 0;
@@ -156,7 +156,7 @@ body {
     margin-bottom: 40px;
 }
 
-/* Section Headers */
+/* Section Headers: Titles with underline style */
 .section-title {
     font-weight: 700;
     color: var(--text-dark);
@@ -175,7 +175,7 @@ body {
     border-radius: 2px;
 }
 
-/* Global Card */
+/* Global Card Styling */
 .card {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -193,8 +193,7 @@ body {
     border-top: 1px solid var(--border-color);
 }
 
-/* Product Cards */
-/* Card design para sa products list */
+/* Product Cards: Card design para sa products list */
 .product-card {
     border: 1px solid var(--border-color);
     border-radius: 12px;
@@ -268,6 +267,7 @@ body {
     display: block;
 }
 
+/* Custom Button Styles */
 .btn-primary-custom {
     background-color: var(--primary-color);
     border: none;
@@ -292,14 +292,7 @@ body {
     color: var(--primary-color) !important;
 }
 
-.add-to-cart-btn {
-    border-radius: 8px;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-/* Product Detail Page */
+/* Product Detail Page Styles */
 .product-detail-img-wrapper {
     background: white;
     padding: 2.5rem;
@@ -315,7 +308,7 @@ body {
     object-fit: contain;
 }
 
-/* Cart Styles (Mga design para sa cart) */
+/* Cart Styles (Design para sa shopping cart page) */
 .cart-container {
     background: var(--bg-card);
     border-radius: 20px;
@@ -356,7 +349,7 @@ body {
     padding: 5px;
 }
 
-/* Account & Forms */
+/* Forms & Inputs */
 .form-control {
     border-radius: 10px;
     padding: 12px 15px;
@@ -376,7 +369,7 @@ body {
 .form-control[readonly] {
     background-color: var(--bg-input);
     color: var(--text-dark);
-    /* Keep text readable (Panatilihing nababasa) */
+    /* Panatilihing nababasa ang text kahit disabled */
     opacity: 0.7;
     /* Padilimin ng konti para mukhang disabled */
     border-color: var(--border-input);
@@ -388,6 +381,7 @@ body {
     opacity: 0.8;
 }
 
+/* Profile Image */
 .profile-img {
     width: 150px;
     height: 150px;
@@ -397,7 +391,7 @@ body {
     margin-bottom: 20px;
 }
 
-/* About Page */
+/* About Page Header */
 .about-header {
     background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../img/haroldLike.png');
     background-size: cover;
@@ -409,7 +403,7 @@ body {
     text-align: center;
 }
 
-/* Footer */
+/* Footer Styling */
 footer {
     background: var(--bg-card);
     padding: 40px 0;
@@ -428,7 +422,7 @@ footer {
     color: var(--primary-color);
 }
 
-/* Scroll Animations */
+/* Scroll Animations: Fade in effect */
 .reveal {
     opacity: 0;
     transform: translateY(30px);
@@ -440,9 +434,7 @@ footer {
     transform: translateY(0);
 }
 
-/* Navbar Scrolled State Removed (Merged Up) */
-
-/* Social Buttons in About Page */
+/* Social Buttons (Round) */
 .social-btn {
     width: 50px;
     height: 50px;
@@ -450,7 +442,7 @@ footer {
     align-items: center;
     justify-content: center;
     padding: 0;
-    /* Override bootstrap padding */
+    /* Override bootstrap default padding */
     transition: all 0.3s ease;
 }
 
@@ -481,6 +473,7 @@ footer {
     opacity: 0;
 }
 
+/* Animation Keyframes */
 @keyframes slideInUp {
     from {
         opacity: 0;
@@ -505,20 +498,18 @@ footer {
     }
 }
 
-/* Glassmorphism */
-/* Modern glass effect para sa overlays */
+/* Glassmorphism: Modern glass effect */
 .glass-carousel {
     background: var(--bg-glass);
     backdrop-filter: blur(12px);
-    /* Eto yung nagpapa-blur sa likod */
-
+    /* Eto yung nagpapa-blur sa likod ng element */
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     border-radius: 20px;
 }
 
-/* Carousel Customization */
+/* Carousel Indicators Styling */
 .carousel-indicators [data-bs-target] {
     background-color: var(--primary-color);
     width: 30px;
@@ -560,7 +551,7 @@ footer {
     color: #b0b0b0 !important;
 }
 
-/* Fix Input Autofill bg */
+/* Fix Input Autofill bg Chrome issue */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
@@ -570,7 +561,7 @@ input:-webkit-autofill:active {
 }
 
 /* --- Mobile Responsiveness (Para sa cellphone) --- */
-/* Default height pag desktop */
+/* Default height pag desktop: sapat para sa malalaking screen */
 .hero-height {
     height: 500px;
 }
@@ -598,7 +589,7 @@ input:-webkit-autofill:active {
         /* Smaller image */
     }
 
-    /* Navbar */
+    /* Navbar Collapse Styling: Mobile menu design */
     .navbar-collapse {
         background: var(--bg-navbar);
         padding: 20px;
@@ -612,7 +603,7 @@ input:-webkit-autofill:active {
         font-size: 1.1rem;
     }
 
-    /* General Spacing */
+    /* General Spacing Adjustments */
     .py-5,
     .p-5 {
         padding-top: 2rem !important;
@@ -623,13 +614,13 @@ input:-webkit-autofill:active {
         margin-bottom: 2rem !important;
     }
 
-    /* Tables */
+    /* Tables Responsive Wrapper */
     .table-responsive {
         border-radius: 10px;
         border: 1px solid var(--border-color);
     }
 
-    /* Product Cards */
+    /* Product Cards Mobile */
     .product-img-wrapper {
         height: 200px;
         padding: 15px;
@@ -640,7 +631,7 @@ input:-webkit-autofill:active {
     }
 }
 
-/* Modal Customization */
+/* Modal Customization: Pop-up dialogs styling */
 .modal-content {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -652,7 +643,7 @@ input:-webkit-autofill:active {
     border-color: var(--border-color);
 }
 
-/* Invert close button in dark mode to make it white */
+/* Invert close button sa dark mode para maging white */
 [data-theme="dark"] .navbar-toggler-icon {
     filter: invert(1) grayscale(100%) brightness(200%);
 }
@@ -666,8 +657,7 @@ input:-webkit-autofill:active {
     /* Prevent clicks while fading */
 }
 
-/* SweetAlert Positioning */
+/* SweetAlert Positioning: Ibaba ng konti para hindi matakpan ng navbar */
 div.swal2-container.swal2-top-end {
     top: 80px !important;
-    /* Push down below navbar */
 }

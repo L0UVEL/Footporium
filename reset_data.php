@@ -7,6 +7,7 @@ $messageType = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reset_data'])) {
     // Disable foreign key checks para pwede mag-truncate kahit may constraints
+    // Ito ay temporary para hindi mag-reklamo ang database habang nagbubura
     $conn->query("SET FOREIGN_KEY_CHECKS = 0");
 
     $tables = ['reviews', 'order_items', 'orders'];
@@ -21,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reset_data'])) {
         }
     }
 
-    // Enable foreign key checks ulit
+    // Enable foreign key checks ulit: Ibalik ang safety rules ng database
     $conn->query("SET FOREIGN_KEY_CHECKS = 1");
 
     if ($success) {
@@ -43,6 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reset_data'])) {
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* Center content styling */
         body {
             background-color: #f8f9fa;
             display: flex;
@@ -81,6 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reset_data'])) {
 <body>
 
     <div class="card p-5 text-center">
+        <!-- Warning Message -->
         <h2 class="mb-4 fw-bold text-danger">⚠️ Reset Data</h2>
         <p class="text-muted mb-4">
             This action will <strong>PERMANENTLY DELETE</strong> all:
@@ -95,6 +98,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reset_data'])) {
             <div class="alert alert-<?php echo $messageType; ?> mb-4"><?php echo $message; ?></div>
         <?php endif; ?>
 
+        <!-- Confirmation Form -->
         <form method="POST" onsubmit="return confirm('Are you absolutely sure? This cannot be undone.');">
             <button type="submit" name="reset_data" class="btn btn-danger-custom mb-3">
                 Yes, Delete All Data

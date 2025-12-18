@@ -1,7 +1,7 @@
 <?php
 // Siguraduhin na konektado sa database
 include 'includes/db_connect.php';
-// I-load ang common header
+// I-load ang common header (para sa navbar at styles)
 include 'includes/header.php';
 ?>
 <!-- Cart Section -->
@@ -12,17 +12,18 @@ include 'includes/header.php';
         <div class="col-lg-8">
             <div class="cart-container">
                 <?php
-                $total_price = 0;
-
+                $total_price = 0; // Initialize ang total price sa 0
+                
+                // Check kung may laman ang cart sa session
                 if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
                     // Kunin ang mga product IDs mula sa session cart key
                     $ids = array_keys($_SESSION['cart']);
 
-                    // Gumawa ng dynamic placeholders para sa SQL query base sa dami ng items
+                    // Gumawa ng dynamic placeholders (?) para sa SQL query base sa dami ng items
                     $types = str_repeat('i', count($ids));
                     $placeholders = implode(',', array_fill(0, count($ids), '?'));
 
-                    // Kunin ang details ng products na nasa cart
+                    // Kunin ang details ng products na nasa cart mula sa database
                     $sql = "SELECT * FROM products WHERE id IN ($placeholders)";
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param($types, ...$ids);
@@ -30,20 +31,22 @@ include 'includes/header.php';
                     $result = $stmt->get_result();
 
                     if ($result && $result->num_rows > 0) {
+                        // I-loop ang mga items sa cart at ipakita
                         while ($row = $result->fetch_assoc()) {
                             $id = $row['id'];
                             // Kunin ang quantity mula sa session cart
                             $qty = $_SESSION['cart'][$id];
-                            // Compute subtotal per item
+                            // Compute subtotal per item (Presyo x Dami)
                             $subtotal = $row['price'] * $qty;
-                            // Add to grand total
+                            // Add sa grand total
                             $total_price += $subtotal;
                             ?>
-                            <!-- Cart Item -->
+                            <!-- Cart Item Display -->
                             <div class="cart-item d-flex align-items-center justify-content-between flex-wrap gap-3"
                                 data-id="<?php echo $id; ?>">
                                 <div class="d-flex align-items-center gap-3">
                                     <?php
+                                    // Ipakita ang image o placeholder kung wala
                                     $imgSrc = !empty($row['image_url']) ? $row['image_url'] : 'assets/img/placeholder.png';
                                     ?>
                                     <img src="<?php echo htmlspecialchars($imgSrc); ?>"
@@ -54,6 +57,7 @@ include 'includes/header.php';
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-center gap-4">
+                                    <!-- Quantity Controls: Plus/Minus buttons -->
                                     <div class="quantity-control">
                                         <button class="btn btn-sm btn-outline-secondary rounded-circle cart-update-btn"
                                             data-action="decrease"><i class="fas fa-minus"></i></button>
@@ -61,6 +65,7 @@ include 'includes/header.php';
                                         <button class="btn btn-sm btn-outline-secondary rounded-circle cart-update-btn"
                                             data-action="increase"><i class="fas fa-plus"></i></button>
                                     </div>
+                                    <!-- Remove Button -->
                                     <button class="btn btn-outline-danger btn-sm rounded-pill px-3 cart-remove-btn">
                                         <i class="fas fa-trash-alt me-1"></i> Remove
                                     </button>
@@ -69,7 +74,7 @@ include 'includes/header.php';
                             <?php
                         }
                     } else {
-                        // Kung may IDs sa session pero wala sa DB
+                        // Kung may IDs sa session pero wala sa DB (baka nabura na ang product)
                         echo "<p class='text-center text-muted'>Items not found in database.</p>";
                     }
                 } else {

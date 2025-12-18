@@ -1,9 +1,9 @@
 <?php
 session_start();
-// Alisin lahat ng session variables
+// Alisin lahat ng session variables para mawala ang user data
 session_unset();
 
-// Delete the session cookie (Para siguradong logged out)
+// Delete the session cookie (Para siguradong logged out na talaga)
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
     setcookie(
@@ -17,9 +17,9 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-// I-destroy ang session sa server
+// I-destroy ang session sa server side
 session_destroy();
-// Redirect pabalik sa homepage
+// I-redirect ang user pabalik sa homepage (index.php)
 header("Location: index.php");
 exit();
 ?>

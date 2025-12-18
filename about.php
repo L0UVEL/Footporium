@@ -1,12 +1,11 @@
 <?php
 // I-include ang database connection script
 include 'includes/db_connect.php';
-// I-load ang header (navbar, css, etc.)
+// I-load ang header (navbar, css, atbp.)
 include 'includes/header.php';
 ?>
 
 <!-- About Header Section: Dito nakalagay ang title at maikling intro -->
-<!-- About Header -->
 <div class="container mt-4">
     <div class="about-header">
         <h1 class="display-3 fw-bold mb-3">About Footporium</h1>
@@ -15,7 +14,6 @@ include 'includes/header.php';
 </div>
 
 <!-- Main Content Section: Dito ang kwento at mission/vision ng Footporium -->
-<!-- Content -->
 <div class="container mb-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
@@ -54,6 +52,7 @@ include 'includes/header.php';
                         inspected. We hope you find the perfect addition to your collection.
                     </p>
 
+                    <!-- Social Media Links -->
                     <div class="mt-5 pt-4 text-center" style="border-top: 1px solid var(--border-color)">
                         <h4 class="mb-3">Connect With Us</h4>
                         <div class="d-flex justify-content-center gap-3">
@@ -71,7 +70,7 @@ include 'includes/header.php';
     </div>
 </div>
 
-<?php 
-// I-load ang footer section (scripts, copyright)
-include 'includes/footer.php'; 
+<?php
+// I-load ang footer section
+include 'includes/footer.php';
 ?>

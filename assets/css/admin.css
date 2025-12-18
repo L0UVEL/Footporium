@@ -13,7 +13,7 @@ body {
     color: var(--text-color);
 }
 
-/* Sidebar: Ang navigation sa kaliwa */
+/* Sidebar: Ang navigation panel sa kaliwa ng screen */
 .sidebar {
     width: var(--sidebar-width);
     background-color: var(--sidebar-bg);
@@ -58,6 +58,7 @@ body {
     border-left: 4px solid transparent;
 }
 
+/* Active State: Styling kapag nasa current page ka na */
 .nav-link:hover,
 .nav-link.active {
     color: white;
@@ -70,14 +71,14 @@ body {
     text-align: center;
 }
 
-/* Main Content: Ang nilalaman sa kanan */
+/* Main Content: Ang nilalaman sa gawing kanan (tabi ng sidebar) */
 .main-content {
     margin-left: var(--sidebar-width);
     padding: 30px;
     transition: all 0.3s;
 }
 
-/* Stats Cards: Box para sa summary numbers */
+/* Stats Cards: Mga box na nagpapakita ng summary numbers (e.g., Total Sales) */
 .stats-card {
     background: white;
     border-radius: 12px;
@@ -117,7 +118,7 @@ body {
     font-size: 0.9rem;
 }
 
-/* Tables: Styling para sa listahan */
+/* Tables: Styling para sa listahan ng products at orders */
 .admin-table-card {
     background: white;
     border-radius: 12px;
@@ -139,6 +140,7 @@ body {
     vertical-align: middle;
 }
 
+/* Product Thumbnail sa table list */
 .product-thumb {
     width: 50px;
     height: 50px;
@@ -148,6 +150,7 @@ body {
     padding: 5px;
 }
 
+/* Action Buttons (Edit/Delete icons) */
 .action-btn {
     width: 32px;
     height: 32px;
@@ -180,6 +183,7 @@ body {
     color: white;
 }
 
+/* Responsive: Kapag mobile, itago ang sidebar */
 @media (max-width: 768px) {
     .sidebar {
         transform: translateX(-100%);

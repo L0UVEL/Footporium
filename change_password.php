@@ -6,18 +6,20 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Siguraduhing naka-login ang user bago pumasok dito
 check_login();
 
 $error = '';
 $success = '';
 $user_id = $_SESSION['user_id'];
 
+// Kapag nag-submit ng change password form
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $current_password = $_POST['current_password'];
     $new_password = $_POST['new_password'];
     $confirm_password = $_POST['confirm_password'];
 
-    // Retrieve current password hash
+    // Kunin ang current password hash mula sa database
     $sql = "SELECT password FROM users WHERE id = ?";
     if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("i", $user_id);
@@ -26,8 +28,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->fetch();
         $stmt->close();
 
+        // I-verify kung tama ang current password na ininput
         if (password_verify($current_password, $hashed_password)) {
-            // Add validation for new password (same as register.php)
+            // Validation para sa bagong password (gaya sa registration)
             if (strlen($new_password) < 8) {
                 $error = "Password must be at least 8 characters long.";
             } elseif (!preg_match("/[A-Z]/", $new_password)) {
@@ -41,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } elseif ($new_password !== $confirm_password) {
                 $error = "New passwords do not match.";
             } else {
-                // Update password
+                // Update ang password sa database gamit ang bagong hash
                 $new_hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
                 $update_sql = "UPDATE users SET password = ? WHERE id = ?";
                 if ($update_stmt = $conn->prepare($update_sql)) {
@@ -82,8 +85,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="input-group">
                                 <input type="password" class="form-control" id="current_password"
                                     name="current_password" required>
+                                <!-- Toggle Button -->
                                 <button class="btn btn-outline-secondary" type="button"
-                                    onclick="togglePassword('current_password', this)">
+                                    style="cursor: pointer; z-index: 100;"
+                                    onclick="togglePassword('current_password', this)"
+                                    onmousedown="event.preventDefault();">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -96,7 +102,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     title="Must contain at least one number, one uppercase and lowercase letter, one special character, and at least 8 or more characters"
                                     required>
                                 <button class="btn btn-outline-secondary" type="button"
-                                    onclick="togglePassword('new_password', this)">
+                                    style="cursor: pointer; z-index: 100;"
+                                    onclick="togglePassword('new_password', this)"
+                                    onmousedown="event.preventDefault();">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -110,7 +118,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <input type="password" class="form-control" id="confirm_password"
                                     name="confirm_password" minlength="8" required>
                                 <button class="btn btn-outline-secondary" type="button"
-                                    onclick="togglePassword('confirm_password', this)">
+                                    style="cursor: pointer; z-index: 100;"
+                                    onclick="togglePassword('confirm_password', this)"
+                                    onmousedown="event.preventDefault();">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>

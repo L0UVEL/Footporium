@@ -3,9 +3,10 @@ session_start();
 include '../includes/db_connect.php';
 include '../includes/functions.php';
 
+// Verify kung admin ang naka-login. Security check.
 check_admin();
 
-// Fetch Current Admin User: Kunin ang info ng naka-login na admin
+// Fetch Current Admin User: Kunin ang info ng naka-login na admin (Pangalan, Picture)
 $admin_id = $_SESSION['user_id'];
 $sql_user = "SELECT first_name, last_name, profile_image FROM users WHERE id = ?";
 $stmt_user = $conn->prepare($sql_user);
@@ -14,15 +15,15 @@ $stmt_user->execute();
 $current_user = $stmt_user->get_result()->fetch_assoc();
 $stmt_user->close();
 
-// Stats Queries: Kunin ang bilang ng products, orders, users, at total sales
+// Stats Queries: Kunin ang mga bilang para sa dashboard summary cards
 $stats = [
-    'products' => $conn->query("SELECT COUNT(*) as count FROM products")->fetch_assoc()['count'],
-    'orders' => $conn->query("SELECT COUNT(*) as count FROM orders")->fetch_assoc()['count'],
-    'users' => $conn->query("SELECT COUNT(*) as count FROM users WHERE role = 'user'")->fetch_assoc()['count'],
-    'revenue' => $conn->query("SELECT SUM(total_amount) as total FROM orders WHERE status = 'delivered'")->fetch_assoc()['total'] ?? 0
+    'products' => $conn->query("SELECT COUNT(*) as count FROM products")->fetch_assoc()['count'], // Bilang ng products
+    'orders' => $conn->query("SELECT COUNT(*) as count FROM orders")->fetch_assoc()['count'], // Bilang ng orders
+    'users' => $conn->query("SELECT COUNT(*) as count FROM users WHERE role = 'user'")->fetch_assoc()['count'], // Bilang ng registered users
+    'revenue' => $conn->query("SELECT SUM(total_amount) as total FROM orders WHERE status = 'delivered'")->fetch_assoc()['total'] ?? 0 // Total kita (Delivered only)
 ];
 
-// Fetch products: Ilista ang mga products sa table
+// Fetch products: Ilista ang mga products sa table (Recent products)
 $sql = "SELECT * FROM products ORDER BY id DESC";
 $result = $conn->query($sql);
 ?>
@@ -45,7 +46,7 @@ $result = $conn->query($sql);
 
 <body>
 
-    <!-- Sidebar -->
+    <!-- Sidebar Navigation -->
     <nav class="sidebar">
         <div class="sidebar-header">
             <a href="#" class="sidebar-brand">
@@ -75,7 +76,7 @@ $result = $conn->query($sql);
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <main class="main-content">
         <div class="container-fluid">
 
@@ -99,7 +100,7 @@ $result = $conn->query($sql);
                 </div>
             </div>
 
-            <!-- Stats Row -->
+            <!-- Stats Row (Cards) -->
             <div class="row g-4 mb-5">
                 <div class="col-md-3">
                     <div class="stats-card">
@@ -138,7 +139,7 @@ $result = $conn->query($sql);
                 </div>
             </div>
 
-            <!-- Products Table -->
+            <!-- Products Table Section -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="fw-bold">Recent Products</h4>
                 <a href="add_product.php" class="btn btn-primary"
@@ -162,7 +163,7 @@ $result = $conn->query($sql);
                         <tbody>
                             <?php 
                             if ($result && $result->num_rows > 0): 
-                                // Reset pointer just in case
+                                // Reset pointer just in case (para siguradong simula sa una)
                                 $result->data_seek(0);
                                 while($row = $result->fetch_assoc()): 
                             ?>
@@ -170,6 +171,7 @@ $result = $conn->query($sql);
                                     <td>
                                         <div class="d-flex align-items-center gap-3">
                                             <?php 
+                                                // Adjust image path dahil nasa admin subfolder tayo
                                                 $imgSrc = !empty($row['image_url']) ? '../' . $row['image_url'] : '../assets/img/placeholder.png';
                                             ?>
                                             <img src="<?php echo htmlspecialchars($imgSrc); ?>" class="product-thumb">
