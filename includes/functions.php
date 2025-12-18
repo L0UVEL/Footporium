@@ -35,6 +35,7 @@ function check_admin()
     }
 }
 // Helper to upload images: Function para sa pag-upload ng pictures
+// Helper to upload images: Function para sa pag-upload ng pictures
 function uploadImage($file, $targetDir = "assets/uploads/")
 {
     // Define allowed file types
@@ -49,32 +50,41 @@ function uploadImage($file, $targetDir = "assets/uploads/")
         return ['success' => false, 'message' => 'Invalid file type. Only JPG, PNG, GIF, and WEBP are allowed.'];
     }
 
-    // Validate size (e.g., max 5MB)
-    if ($file['size'] > 5000000) {
-        return ['success' => false, 'message' => 'File is too large. Max 5MB allowed.'];
+    // Validate size (e.g., max 10MB to accommodate mobile photos)
+    if ($file['size'] > 10000000) {
+        return ['success' => false, 'message' => 'File is too large. Max 10MB allowed.'];
     }
 
     // Generate unique filename to avoid overwrites
     $newFileName = uniqid() . '.' . $fileType;
+
+    // Ensure separate paths are clean
+    $targetDir = rtrim($targetDir, '/') . '/';
     $targetPath = $targetDir . $newFileName;
 
-    // We need to resolve relative path for move_uploaded_file, but return relative path for DB
-    // Assuming $targetDir is relative from the script execution root or we pass absolute path?
-    // Let's assume $targetDir is passed relative to public root (e.g. assets/uploads/products/)
-    // But move_uploaded_file needs correct path relative to the executing script. 
-    // Since scripts vary (admin/ vs /), we need to be careful.
-    // Ideally we use absolute path for movement.
-
-    // Let's resolve absolute path based on this file's location which is in includes/
-    // __DIR__ is .../includes
-    // root is dirname(__DIR__)
+    // Resolve absolute path
     $rootPath = dirname(__DIR__);
-    $absoluteTarget = $rootPath . '/' . $targetPath;
+    $absoluteTargetDir = $rootPath . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $targetDir);
+    $absoluteTargetFile = $rootPath . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $targetPath);
 
-    if (move_uploaded_file($file['tmp_name'], $absoluteTarget)) {
+    // Create directory if it doesn't exist
+    if (!is_dir($absoluteTargetDir)) {
+        if (!mkdir($absoluteTargetDir, 0777, true)) {
+            return ['success' => false, 'message' => 'Failed to create upload directory: ' . $targetDir];
+        }
+    }
+
+    // Check if writable
+    if (!is_writable($absoluteTargetDir)) {
+        return ['success' => false, 'message' => 'Directory not writable. Please CHMOD 777: ' . $targetDir];
+    }
+
+    // Try to upload
+    if (move_uploaded_file($file['tmp_name'], $absoluteTargetFile)) {
         return ['success' => true, 'path' => $targetPath];
     } else {
-        return ['success' => false, 'message' => 'Failed to move uploaded file. Check permissions.'];
+        // Debug info included in message (safe for now as it's local/dev)
+        return ['success' => false, 'message' => 'Failed to move uploaded file. Check folder permissions for: ' . $targetDir];
     }
 }
 ?>
