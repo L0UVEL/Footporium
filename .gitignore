@@ -13,6 +13,10 @@
 *.log
 php_errors.log
 debug.log
+reset_links.log
+
+# Temporary Setup Files
+setup_database.php
 
 # Uploads (User generated content)
 assets/uploads/*

@@ -77,7 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
                         <div class="mb-4">
                             <label for="password" class="form-label">Password</label>
-                            <div class="input-group">
+                            <div class="input-group mb-2">
                                 <input type="password" class="form-control" id="password" name="password" required>
                                 <!-- Toggle Password Button (Eye Icon) -->
                                 <button class="btn btn-outline-secondary" type="button"
@@ -85,6 +85,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     onmousedown="event.preventDefault();"> <!-- Prevent focus loss sa mobile -->
                                     <i class="fas fa-eye"></i>
                                 </button>
+                            </div>
+                            <div class="text-end">
+                                <a href="forgot_password.php" class="text-decoration-none text-muted small">Forgot
+                                    Password?</a>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary-custom w-100 py-3 mb-3">Login</button>
